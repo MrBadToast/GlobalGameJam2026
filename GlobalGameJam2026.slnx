@@ -1,0 +1,11 @@
+﻿<Solution>
+  <Project Path="ChocDino.UIFX.csproj" />
+  <Project Path="ChocDino.UIFX.Editor.csproj" />
+  <Project Path="Assembly-CSharp-firstpass.csproj" />
+  <Project Path="ChocDino.UIFX.TMP.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="ChocDino.UIFX.Demos.csproj" />
+  <Project Path="Assembly-CSharp-Editor-firstpass.csproj" />
+  <Project Path="ChocDino.UIFX.TMP.Editor.csproj" />
+  <Project Path="Sirenix.OdinInspector.Modules.UnityMathematics.csproj" />
+</Solution>

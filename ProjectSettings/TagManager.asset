@@ -34,8 +34,8 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
+  - Enemy
+  - ChaseTarget
   - 
   m_SortingLayers:
   - name: Default

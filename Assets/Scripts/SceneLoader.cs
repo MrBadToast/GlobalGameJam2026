@@ -23,7 +23,7 @@ public class SceneLoader : MonoBehaviour
 
     public void LoadNewScene(string sceneID)
     {
-        if (instance == null) { Debug.LogError("¾À ·Îµù¿¡ ÇÊ¿äÇÑ SceneLoader°¡ ¾ø½À´Ï´Ù. ÇØ´ç ¿ÀºêÁ§Æ®°¡ ÀÖ´ÂÁö È®ÀÎÇØÁÖ¼¼¿ä."); return; }
+        if (instance == null) { Debug.LogError("ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ SceneLoaderï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½. ï¿½Ø´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½ï¿½ï¿½ï¿½Ö¼ï¿½ï¿½ï¿½."); return; }
 
         if (sceneLoading) return;
         StopAllCoroutines();
@@ -64,6 +64,4 @@ public class SceneLoader : MonoBehaviour
         sceneLoading = false;
         visualGroup.SetActive(false);
     }
-
-
 }

@@ -32,7 +32,7 @@ public abstract class EntityBase : SerializedMonoBehaviour, IEntity
         currentHealth = maxHealth;
     }
 
-    public virtual void TakeDamage(float damage)
+    public virtual void TakeDamage(float damage, Vector2 direction)
     {
         if (IsDead) return;
 

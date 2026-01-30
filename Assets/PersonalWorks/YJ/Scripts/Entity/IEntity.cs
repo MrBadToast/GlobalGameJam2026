@@ -14,5 +14,5 @@ public interface IEntity
     Animator Animator { get; }
 
     // 메서드
-    void TakeDamage(float damage);
+    void TakeDamage(float damage, Vector2 direction);
 }

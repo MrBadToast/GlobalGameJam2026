@@ -9,10 +9,12 @@ public interface IEntity
     float MaxHealth { get; }
     float CurrentHealth { get; }
     ExpressionType Expression { get; }
-    WeaponType Weapon { get; }
     bool IsDead { get; }
     Animator Animator { get; }
+    GameObject GameObject { get; }
+    EntityStats BonusStats { get; }
 
     // 메서드
     void TakeDamage(float damage, Vector2 direction);
+    void Die();
 }

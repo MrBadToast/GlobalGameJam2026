@@ -7,9 +7,9 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
 {
-    [Title("¼³Á¤")]
+    [Title("ï¿½ï¿½ï¿½ï¿½")]
     [SerializeField] private WeaponType weaponType = WeaponType.Weapon1;
-    [SerializeField] private ExpressionType expressionType = ExpressionType.Expression1;
+    [SerializeField] private ExpressionType expressionType = ExpressionType.Neutral;
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float moveSpeed = 2f;
     [SerializeField] private float detectionRange = 8f;
@@ -22,7 +22,7 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
     [SerializeField] private LayerMask attackTarget;
     [SerializeField] private AnimationCurve staggerOffCurve;
 
-    [Title("»ç¿îµå")]
+    [Title("ï¿½ï¿½ï¿½ï¿½")]
     [SerializeField] private AudioSource aud_Swing;
     [SerializeField] private AudioSource aud_Hurt;
     [SerializeField] private AudioSource aud_Death;
@@ -47,6 +47,8 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
 
     private Vector2 forwarding = Vector2.right;
 
+    private EntityStats bonusStats;
+
     MovementState_Base currentMovementState;
     [SerializeField, ReadOnly] private string debug_currentMovement;
 
@@ -64,6 +66,10 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
     public ExpressionType Expression => expressionType;
     public WeaponType Weapon => weaponType;
     public bool IsDead => isDead;
+
+    public GameObject GameObject => this.GameObject;
+
+    public EntityStats BonusStats => bonusStats;
 
     public void TakeDamage(float damage, Vector2 direction)
     {

@@ -93,7 +93,7 @@ public class Player_Topdown : StaticSerializedMonoBehaviour<Player_Topdown>, IEn
 
     // ========== IEntity 메서드 ==========
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, Vector2 direction)
     {
         if (IsDead) return;
 

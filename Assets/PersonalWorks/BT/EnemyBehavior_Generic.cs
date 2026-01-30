@@ -4,10 +4,12 @@ using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class EnemyBehavior_Generic : EnemyBehavior_Base
+public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
 {
-
     [Title("¼³Á¤")]
+    [SerializeField] private WeaponType weaponType = WeaponType.Weapon1;
+    [SerializeField] private ExpressionType expressionType = ExpressionType.Expression1;
+    [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float moveSpeed = 2f;
     [SerializeField] private float detectionRange = 8f;
     [SerializeField] private float attackRange = 1.5f;
@@ -15,20 +17,29 @@ public class EnemyBehavior_Generic : EnemyBehavior_Base
     [SerializeField, MinMaxSlider(0.1f,10f)] private Vector2 seekInterval = new Vector2(0.5f, 3f);
     [SerializeField] private float attackDuration = 0.6f;
     [SerializeField] private int damage = 10;
+    [SerializeField] private float hurtCooldown = 0.3f;
     [SerializeField] private LayerMask attackTarget;
     [SerializeField] private AnimationCurve staggerOffCurve;
 
     [Title("ChildReferences")]
     [SerializeField, Required] private Animator spriteAnimator;
+    [SerializeField, Required] private BoxCollider2D attackHitbox;
 
     [Title("Debug")]
     [SerializeField,ReadOnly] private Transform trackingTarget;
 
-    private float lastAttackTime = 0;
-    private float lastSeekTime = 0;
-    private float seekRangeOutTime = 0;
+    [SerializeField, ReadOnly] private float currentHealth = 0f;
+
+    [SerializeField, ReadOnly] private float lastAttackTimer = 0f;
+    [SerializeField, ReadOnly] private float lastSeekTimer = 0f;
+    [SerializeField, ReadOnly] private float nextSeekTime = 0f;
+    [SerializeField, ReadOnly] private float hurtTimer = 0f;
 
     private float nextAttackTime = 0f;
+
+    private bool isDead = false;
+
+    private Vector2 forwarding = Vector2.right;
 
     MovementState_Base currentMovementState;
     [SerializeField, ReadOnly] private string debug_currentMovement;
@@ -39,18 +50,42 @@ public class EnemyBehavior_Generic : EnemyBehavior_Base
         rbody = GetComponent<Rigidbody2D>();
     }
 
-    #region Unity Events
-    protected override void Start()
+    #region Interface Implementation
+
+    Animator IEntity.Animator => spriteAnimator;
+    public float MaxHealth => maxHealth;
+    public float CurrentHealth => currentHealth;
+    public ExpressionType Expression => expressionType;
+    public WeaponType Weapon => weaponType;
+    public bool IsDead => isDead;
+
+    public void TakeDamage(float damage)
     {
-        lastAttackTime = Time.time;
-        lastSeekTime = Time.time;
+        OnHurt(Vector2.zero, damage);
+    }
+
+    #endregion
+
+    #region Unity Events
+    private void Start()
+    {
+        lastAttackTimer = Time.time;
+        lastSeekTimer = Time.time;
+
+        currentHealth = maxHealth;
 
         ChangeMovementState(new Movement_Roam(this));
     }
 
     private void Update()
     {
+        
         currentMovementState.UpdateState();
+    }
+
+    private void FixedUpdate()
+    {
+        rbody.linearVelocity = Vector2.Lerp(rbody.linearVelocity, Vector2.zero, 0.2f);
     }
 
     private void OnDrawGizmosSelected()
@@ -102,9 +137,9 @@ public class EnemyBehavior_Generic : EnemyBehavior_Base
         }
         public override void UpdateState()
         {
-            if (enemy.lastSeekTime >= nextSeekTime + Time.deltaTime)
+            if (enemy.lastSeekTimer >= nextSeekTime + Time.deltaTime)
             {
-                enemy.lastSeekTime = Time.time;
+                enemy.lastSeekTimer = Time.time;
                 enemy.DecideForState(enemy);
                 return;
             }
@@ -113,28 +148,30 @@ public class EnemyBehavior_Generic : EnemyBehavior_Base
 
     class Movement_Roam : MovementState_Base
     {
-        float nextSeekTime = 0f;
         Vector2 roamDirection;
 
         public Movement_Roam(EnemyBehavior_Generic enemy) : base(enemy)
         {
-            roamDirection = Random.insideUnitCircle.normalized;
             debugStateName = "Roam";
         }
 
         public override void EnterState()
         {
+            roamDirection = Random.insideUnitCircle.normalized;
             enemy.spriteAnimator.Play("Move");
-            nextSeekTime = Random.Range(enemy.seekInterval.x, enemy.seekInterval.y);
+            enemy.nextSeekTime = Random.Range(enemy.seekInterval.x, enemy.seekInterval.y);
         }
 
         public override void UpdateState()
         {
-           enemy.rbody.linearVelocity = roamDirection * enemy.moveSpeed;
+            enemy.rbody.linearVelocity = roamDirection * enemy.moveSpeed;
 
-            if (enemy.lastSeekTime >= nextSeekTime + Time.deltaTime)
+            enemy.spriteAnimator.SetFloat("Heading_X", roamDirection.x);
+            enemy.spriteAnimator.SetFloat("Heading_Y", roamDirection.y);
+
+            if (Time.time >= enemy.nextSeekTime + enemy.lastSeekTimer)
             {
-                enemy.lastSeekTime = Time.time;
+                enemy.lastSeekTimer = Time.time;
                 enemy.DecideForState(enemy);
                 return;
             }
@@ -145,7 +182,7 @@ public class EnemyBehavior_Generic : EnemyBehavior_Base
     {
         public bool CanAttack()
         {
-            return Time.time >= enemy.lastAttackTime + enemy.nextAttackTime;
+            return Time.time >= enemy.lastAttackTimer + enemy.nextAttackTime;
         }
 
         public Movement_Chase(EnemyBehavior_Generic enemy) : base(enemy)
@@ -160,8 +197,12 @@ public class EnemyBehavior_Generic : EnemyBehavior_Base
         {
             float distanceToTarget = Vector2.Distance(enemy.transform.position, enemy.trackingTarget.position);
 
+            enemy.HeadForTarget(enemy.trackingTarget.position);
+
             Vector2 direction = (enemy.trackingTarget.position - enemy.transform.position).normalized;
             enemy.rbody.linearVelocity = direction * enemy.moveSpeed;
+
+
 
             if (distanceToTarget <= enemy.attackRange && CanAttack())
             {
@@ -184,11 +225,12 @@ public class EnemyBehavior_Generic : EnemyBehavior_Base
 
         private IEnumerator Cor_Attack()
         {
-            enemy.FaceToTarget();
+            enemy.HeadForTarget(enemy.trackingTarget.position);
             enemy.PerformAttack();
 
             yield return new WaitForSeconds(enemy.attackDuration);
 
+            enemy.lastAttackTimer = Time.time;
             attackCor = null;
         }
 
@@ -199,7 +241,7 @@ public class EnemyBehavior_Generic : EnemyBehavior_Base
         public override void EnterState()
         {
             enemy.spriteAnimator.Play("Attack");
-            enemy.lastAttackTime = Time.time;
+            enemy.lastAttackTimer = Time.time;
             enemy.nextAttackTime = Random.Range(enemy.attackCooldown.x, enemy.attackCooldown.y);
             attackCor = enemy.StartCoroutine(Cor_Attack());
 
@@ -281,20 +323,27 @@ public class EnemyBehavior_Generic : EnemyBehavior_Base
 
     #endregion
 
-    #region Public / Override Methods
+    #region Public / Interface Methods
 
-    public override void OnHurt(Vector2 force, float damage)
+    public void OnHurt(Vector2 force, float damage)
     {
-        base.OnHurt(force, damage);
+        currentHealth -= damage;
 
-        ChangeMovementState(new Movement_Stagger(this, force));
+        if (currentHealth <= 0f)
+        {
+            Die();
+        }
+        else
+        {
+            ChangeMovementState(new Movement_Stagger(this, force));
+        }
     }
 
-    public override void Die()
+    public void Die()
     {
-        base.Die();
-
+        currentHealth = 0f;
         ChangeMovementState(new Movement_Dead(this));
+        isDead = true;
     }
 
     #endregion
@@ -303,9 +352,9 @@ public class EnemyBehavior_Generic : EnemyBehavior_Base
 
     private bool SeekTarget(float range)
     {
-        Collider2D target = Physics2D.OverlapCircle(transform.position, detectionRange, attackTarget);
+        RaycastHit2D target = Physics2D.CircleCast(transform.position, range, Vector2.up, 0f, attackTarget); // Physics2D.OverlapCircle(transform.position, range, attackTarget);
 
-        if(target != null)
+        if(target)
         {
             trackingTarget = target.transform;
             return true;
@@ -317,9 +366,17 @@ public class EnemyBehavior_Generic : EnemyBehavior_Base
         }
     }
 
+    private void HeadForTarget(Vector3 target)
+    {
+        Vector2 direction = (target - transform.position).normalized;
+
+        spriteAnimator.SetFloat("Heading_X", direction.x);
+        spriteAnimator.SetFloat("Heading_Y", direction.y);
+    }
+
     private void DecideForState(EnemyBehavior_Generic enemyInstance)
     {
-        if (SeekTarget(attackRange))
+        if (SeekTarget(enemyInstance.attackRange))
         {
             ChangeMovementState(new Movement_Attack(enemyInstance));
         }
@@ -333,26 +390,20 @@ public class EnemyBehavior_Generic : EnemyBehavior_Base
         }
     }
 
-    private void FaceToTarget()
-    {
-        if (trackingTarget == null)
-            return;
-
-        float direction = trackingTarget.position.x - transform.position.x;
-
-        if (direction > 0f) transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
-        else if (direction < 0f) transform.localRotation = Quaternion.Euler(0f, 180f, 0f);  
-
-    }
-
     private void PerformAttack()
     {
-        
+        Physics2D.OverlapBoxAll(attackHitbox.bounds.center, attackHitbox.bounds.size, 0f, attackTarget)
+            .ToList()
+            .ForEach(target =>
+            {
+                IEntity entity = target.GetComponent<IEntity>();
+                entity?.TakeDamage(damage);
+            });
     }
 
     #endregion
 
 
-    
+
 
 }

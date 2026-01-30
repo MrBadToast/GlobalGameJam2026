@@ -5,24 +5,28 @@ using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
+public class EnemyBehavior_Generic : MonoBehaviour, IEntity
 {
-    [Title("����")]
+    [Title("Properties")]
+    [SerializeField] private bool isProjectileAttack = false;
     [SerializeField] private WeaponType weaponType = WeaponType.Weapon1;
     [SerializeField] private ExpressionType expressionType = ExpressionType.Neutral;
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float moveSpeed = 2f;
+    [SerializeField] private float damage = 10;
+    [SerializeField] private float defense = 0f;
+
+    [Title("Settings")]
+    [SerializeField] private float attackDuration = 0.7f;
     [SerializeField] private float detectionRange = 8f;
     [SerializeField] private float attackRange = 1.5f;
     [SerializeField, MinMaxSlider(0.1f,10f)] private Vector2 attackCooldown = new Vector2(1.2f, 5f);
     [SerializeField, MinMaxSlider(0.1f,10f)] private Vector2 seekInterval = new Vector2(0.5f, 3f);
-    [SerializeField] private float attackDuration = 0.6f;
-    [SerializeField] private int damage = 10;
     [SerializeField] private float hurtCooldown = 0.3f;
     [SerializeField] private LayerMask attackTarget;
     [SerializeField] private AnimationCurve staggerOffCurve;
-
-    [Title("����")]
+    [Title("Audios")]
+    [SerializeField] private AudioSource aud_Fire;
     [SerializeField] private AudioSource aud_Swing;
     [SerializeField] private AudioSource aud_Hurt;
     [SerializeField] private AudioSource aud_Death;
@@ -30,6 +34,9 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
     [Title("ChildReferences")]
     [SerializeField, Required] private Animator spriteAnimator;
     [SerializeField, Required] private BoxCollider2D attackHitbox;
+
+    [SerializeField, Required] private GameObject damageTextPrefab;
+    [SerializeField] private GameObject projectilePrefab;
 
     [Title("Debug")]
     [SerializeField,ReadOnly] private Transform trackingTarget;
@@ -73,6 +80,16 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
 
     public void TakeDamage(float damage, Vector2 direction)
     {
+        if(IsDead)
+            return;
+
+        float effectiveDamage = damage - defense;
+        if (effectiveDamage < 0f)
+            effectiveDamage = 0f;
+
+        GameObject dmgTextObj = Instantiate(damageTextPrefab, transform.position + Vector3.up * 0.5f, Quaternion.identity);
+        dmgTextObj.GetComponent<DamageText>().SetText(effectiveDamage.ToString("F0"));
+
         OnHurt(direction, damage);
     }
 
@@ -91,7 +108,6 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
 
     private void Update()
     {
-        
         currentMovementState.UpdateState();
     }
 
@@ -235,7 +251,6 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
 
         private IEnumerator Cor_Attack()
         {
-            enemy.aud_Swing.Play();
             enemy.HeadForTarget(enemy.trackingTarget.position);
             enemy.PerformAttack();
 
@@ -407,18 +422,34 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
 
     private void PerformAttack()
     {
-        Physics2D.OverlapBoxAll(attackHitbox.bounds.center, attackHitbox.bounds.size, 0f, attackTarget)
-            .ToList()
-            .ForEach(target =>
-            {
-                IEntity entity = target.GetComponent<IEntity>();
-                entity?.TakeDamage(damage, (target.transform.position - transform.position).normalized);
-            });
+        if(trackingTarget == null)
+            return;
+
+        if (isProjectileAttack)
+        {
+            aud_Fire.Play();
+
+            if (projectilePrefab == null)
+                return;
+
+            GameObject projectileObj = Instantiate(projectilePrefab, attackHitbox.bounds.center, Quaternion.identity);
+            projectileObj.transform.right = (trackingTarget.position - transform.position).normalized;
+            return;
+        }
+        else
+        {
+            aud_Swing.Play();
+
+            Physics2D.OverlapBoxAll(attackHitbox.bounds.center, attackHitbox.bounds.size, 0f, attackTarget)
+                .ToList()
+                .ForEach(target =>
+                {
+                    IEntity entity = target.GetComponent<IEntity>();
+                    entity?.TakeDamage(damage, (target.transform.position - transform.position).normalized);
+                });
+        }
     }
 
     #endregion
-
-
-
 
 }

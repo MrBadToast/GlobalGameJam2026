@@ -1,13 +1,12 @@
 using Sirenix.OdinInspector;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using System.Collections;
+using System.Linq;
 
-[RequireComponent(typeof(Rigidbody2D))]
-public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
+public class EnemyBehavior_Range : SerializedMonoBehaviour, IEntity
 {
     [Title("¼³Á¤")]
+
     [SerializeField] private WeaponType weaponType = WeaponType.Weapon1;
     [SerializeField] private ExpressionType expressionType = ExpressionType.Expression1;
     [SerializeField] private float maxHealth = 100f;
@@ -115,11 +114,11 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
 
     public class MovementState_Base
     {
-        protected EnemyBehavior_Generic enemy;
+        protected EnemyBehavior_Range enemy;
         protected string debugStateName = "None";
         public string DebugStateName => debugStateName;
 
-        public MovementState_Base(EnemyBehavior_Generic enemy)
+        public MovementState_Base(EnemyBehavior_Range enemy)
         {
             this.enemy = enemy;
         }
@@ -132,7 +131,7 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
     {
         float nextSeekTime = 0f;
 
-        public Movement_Idle(EnemyBehavior_Generic enemy) : base(enemy)
+        public Movement_Idle(EnemyBehavior_Range enemy) : base(enemy)
         {
             debugStateName = "Idle";
         }
@@ -156,7 +155,7 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
     {
         Vector2 roamDirection;
 
-        public Movement_Roam(EnemyBehavior_Generic enemy) : base(enemy)
+        public Movement_Roam(EnemyBehavior_Range enemy) : base(enemy)
         {
             debugStateName = "Roam";
         }
@@ -191,7 +190,7 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
             return Time.time >= enemy.lastAttackTimer + enemy.nextAttackTime;
         }
 
-        public Movement_Chase(EnemyBehavior_Generic enemy) : base(enemy)
+        public Movement_Chase(EnemyBehavior_Range enemy) : base(enemy)
         {
             debugStateName = "Chase";
         }
@@ -207,6 +206,8 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
 
             Vector2 direction = (enemy.trackingTarget.position - enemy.transform.position).normalized;
             enemy.rbody.linearVelocity = direction * enemy.moveSpeed;
+
+
 
             if (distanceToTarget <= enemy.attackRange && CanAttack())
             {
@@ -229,7 +230,6 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
 
         private IEnumerator Cor_Attack()
         {
-            enemy.aud_Swing.Play();
             enemy.HeadForTarget(enemy.trackingTarget.position);
             enemy.PerformAttack();
 
@@ -239,7 +239,7 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
             attackCor = null;
         }
 
-        public Movement_Attack(EnemyBehavior_Generic enemy) : base(enemy)
+        public Movement_Attack(EnemyBehavior_Range enemy) : base(enemy)
         {
             debugStateName = "Attack";
         }
@@ -276,7 +276,7 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
         float timeStaggered = 0f;
         Vector2 pushForce = Vector2.zero;
 
-        public Movement_Stagger(EnemyBehavior_Generic enemy, Vector2 force) : base(enemy)
+        public Movement_Stagger(EnemyBehavior_Range enemy, Vector2 force) : base(enemy)
         {
             debugStateName = "Stagger";
             pushForce = force;
@@ -304,13 +304,14 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
         float despawnDelay = 2f;
         float despawnTimer = 0f;
 
-        public Movement_Dead(EnemyBehavior_Generic enemy) : base(enemy)
+        public Movement_Dead(EnemyBehavior_Range enemy) : base(enemy)
         {
             debugStateName = "Dead";
         }
         public override void EnterState()
         {
             enemy.spriteAnimator.Play("Dead");
+            enemy.aud_Death.Play();
             enemy.rbody.linearVelocity = Vector2.zero;
             enemy.rbody.bodyType = RigidbodyType2D.Kinematic;
             enemy.enabled = false;
@@ -333,9 +334,8 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
 
     public void OnHurt(Vector2 force, float damage)
     {
-        aud_Hurt.Play();
-
         currentHealth -= damage;
+        aud_Hurt.Play();
 
         if (currentHealth <= 0f)
         {
@@ -349,7 +349,6 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
 
     public void Die()
     {
-        aud_Death.Play();
         currentHealth = 0f;
         ChangeMovementState(new Movement_Dead(this));
         isDead = true;
@@ -383,7 +382,7 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
         spriteAnimator.SetFloat("Heading_Y", direction.y);
     }
 
-    private void DecideForState(EnemyBehavior_Generic enemyInstance)
+    private void DecideForState(EnemyBehavior_Range enemyInstance)
     {
         if (SeekTarget(enemyInstance.attackRange))
         {
@@ -401,6 +400,8 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
 
     private void PerformAttack()
     {
+        aud_Swing.Play();
+
         Physics2D.OverlapBoxAll(attackHitbox.bounds.center, attackHitbox.bounds.size, 0f, attackTarget)
             .ToList()
             .ForEach(target =>
@@ -411,8 +412,4 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
     }
 
     #endregion
-
-
-
-
 }

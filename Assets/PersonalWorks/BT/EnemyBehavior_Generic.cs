@@ -59,9 +59,9 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
     public WeaponType Weapon => weaponType;
     public bool IsDead => isDead;
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, Vector2 direction)
     {
-        OnHurt(Vector2.zero, damage);
+        OnHurt(direction, damage);
     }
 
     #endregion
@@ -275,6 +275,7 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
         {
             debugStateName = "Stagger";
             pushForce = force;
+            enemy.rbody.linearVelocity = Vector2.zero;
         }
         public override void EnterState()
         {
@@ -327,6 +328,8 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
 
     public void OnHurt(Vector2 force, float damage)
     {
+        Debug.Log($"Enemy Hurt: {damage} damage");
+
         currentHealth -= damage;
 
         if (currentHealth <= 0f)
@@ -397,7 +400,7 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
             .ForEach(target =>
             {
                 IEntity entity = target.GetComponent<IEntity>();
-                entity?.TakeDamage(damage);
+                entity?.TakeDamage(damage, (target.transform.position - transform.position).normalized);
             });
     }
 

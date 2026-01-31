@@ -643,8 +643,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82beb68869b05b146860bd04229a9ca3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyBehavior_Generic
-  _CurrentHealth: 0
-  _IsDead: 0
   isProjectileAttack: 0
   weaponType: 0
   expressionType: 0
@@ -802,7 +800,6 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
-  - {fileID: 3166413810301351272}
   - {fileID: 841305924162618262}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &841305924162618262

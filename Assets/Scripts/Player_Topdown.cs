@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using Fusion;
 using Sirenix.OdinInspector;
-using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -33,20 +32,58 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     [Networked] public float NetworkedHealth { get; set; }
 
     [Header("Expression")]
-    [SerializeField] private ExpressionType expression;
+    [Networked, OnChangedRender(nameof(OnExpressionChangedNetwork))]
+    public int NetworkedExpression { get; set; }
+    [SerializeField] private AnimatorOverrideController[] expressionAnimators = new AnimatorOverrideController[4];
+
+    [Header("Weapon")]
+    [SerializeField] private WeaponController weaponController;
 
     // IEntity 속성
-    public float MaxHealth => maxHealth;
-    public float CurrentHealth => NetworkedHealth;
-    public ExpressionType Expression => expression;
+    public float MaxHealth
+    {
+        get
+        {
+            // 2. HUD가 MaxHealth를 읽을 때도 안전하게 보호
+            return maxHealth;
+        }
+    }
+
+    public float CurrentHealth
+    {
+        get
+        {
+            // 1. Object가 없거나, 아직 네트워크상에 존재하지(Spawned 전) 않는지 확인
+            if (Object == null || !Object.IsValid)
+                return 0f;
+
+            return NetworkedHealth;
+        }
+    }
+    public ExpressionType Expression => (ExpressionType)NetworkedExpression;
     [Networked] public NetworkBool NetworkedIsDead { get; set; }
     public bool IsDead => NetworkedIsDead;
     public Animator Animator => animator;
     public GameObject GameObject => gameObject;
 
     // ========== 플레이어 전용 ==========
+    [Networked] private int _networkedMoney { get; set; }
     [Header("Player Only")]
-    [Networked] public int Money { get; set; }
+    public int Money
+    {
+        get
+        {
+            // 네트워크 연결 상태가 아니면 안전하게 0을 반환
+            if (Object == null || !Object.IsValid) return 0;
+            return _networkedMoney;
+        }
+        set
+        {
+            // 권한이 있을 때만 수정 가능하도록 보호 (선택 사항)
+            if (Object != null && Object.HasStateAuthority)
+                _networkedMoney = value;
+        }
+    }
 
     [Header("Potion")]
     [SerializeField] private ItemData[] potionTypes = new ItemData[3];  // 물약 종류 3개 (Inspector에서 할당)
@@ -72,6 +109,7 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     [SerializeField] private float attackCooldown = 0.5f;
 
     [Header("Ranged Attack")]
+    [SerializeField] private Transform firePoint;
     [SerializeField] private float rangedAttackRange = 15f;
     [SerializeField] private LineRenderer lineRenderer;
     [SerializeField] private float lineDisplayDuration = 0.1f;
@@ -124,10 +162,10 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     public NetworkArray<float> BonusAttackSpeedArray => default;
 
     // 현재 표정의 보너스 스탯 (편의 접근자)
-    public float BonusAttack => BonusAttackArray[(int)expression];
-    public float BonusDamageTaken => BonusDamageTakenArray[(int)expression];
-    public float BonusMoveSpeed => BonusMoveSpeedArray[(int)expression];
-    public float BonusAttackSpeed => BonusAttackSpeedArray[(int)expression];
+    public float BonusAttack => BonusAttackArray[NetworkedExpression];
+    public float BonusDamageTaken => BonusDamageTakenArray[NetworkedExpression];
+    public float BonusMoveSpeed => BonusMoveSpeedArray[NetworkedExpression];
+    public float BonusAttackSpeed => BonusAttackSpeedArray[NetworkedExpression];
 
     // 인스펙터에서 확인용 (읽기 전용)
     [Header("Debug - Current Expression Bonus Stats")]
@@ -138,18 +176,19 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
 
     private void OnBonusStatsChanged()
     {
-        UpdateDebugStats();
+        if (transform != null)
+            UpdateDebugStats();
     }
 
     private void UpdateDebugStats()
     {
-        int idx = (int)expression;
+        int idx = NetworkedExpression;
         debug_BonusAttack = BonusAttackArray[idx];
         debug_BonusDamageTaken = BonusDamageTakenArray[idx];
         debug_BonusMoveSpeed = BonusMoveSpeedArray[idx];
         debug_BonusAttackSpeed = BonusAttackSpeedArray[idx];
 
-        Debug.Log($"[Stats Changed] Expression: {expression}, ATK: {debug_BonusAttack}, DMG: {debug_BonusDamageTaken}, SPD: {debug_BonusMoveSpeed}, ASPD: {debug_BonusAttackSpeed}");
+        Debug.Log($"[Stats Changed] Expression: {Expression}, ATK: {debug_BonusAttack}, DMG: {debug_BonusDamageTaken}, SPD: {debug_BonusMoveSpeed}, ASPD: {debug_BonusAttackSpeed}");
     }
 
     // IEntity용 래퍼
@@ -252,6 +291,13 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
         if (mainCamera != null)
         {
             mouseWorldPosition = mainCamera.ScreenToWorldPoint(UnityEngine.Input.mousePosition);
+
+            // 무기 조준 방향 업데이트
+            if (weaponController != null)
+            {
+                Vector2 aimDir = (mouseWorldPosition - (Vector2)transform.position).normalized;
+                weaponController.SetAimDirection(aimDir);
+            }
         }
 
         if (IsDead || !isInputEnabled)
@@ -375,7 +421,7 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
             if (inputData.isAttackPressed)
             {
                 // 현재 표정에 따른 공격 타입 확인
-                AttackRangeType attackType = ExpressionData.GetAttackRange(expression);
+                AttackRangeType attackType = ExpressionData.GetAttackRange(Expression);
 
                 if (attackType == AttackRangeType.Melee)
                 {
@@ -397,7 +443,7 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     // ========== [근접 공격 로직] ==========
     private void ProcessMeleeAttack(Vector2 direction)
     {
-        float cooldown = attackCooldown / ExpressionData.GetAttackSpeedMultiplier(expression, BonusStats);
+        float cooldown = attackCooldown / ExpressionData.GetAttackSpeedMultiplier(Expression, BonusStats);
         if (Time.time < lastAttackTime + cooldown) return;
         lastAttackTime = Time.time;
 
@@ -418,20 +464,20 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
             );
 
             // 애니메이션 및 사운드 동기화를 위한 RPC (필요 시)
-            RPC_PlayMeleeEffects(attackPos);
+            RPC_PlayMeleeEffects(transform.position, baseDamage, attackPos);
         }
     }
 
     // ========== [원거리 공격 로직] ==========
     private void ProcessRangedAttack(Vector2 direction)
     {
-        float cooldown = attackCooldown / ExpressionData.GetAttackSpeedMultiplier(expression, BonusStats);
+        float cooldown = attackCooldown / ExpressionData.GetAttackSpeedMultiplier(Expression, BonusStats);
         if (Time.time < lastAttackTime + cooldown) return;
         lastAttackTime = Time.time;
 
         if (Object.HasStateAuthority)
         {
-            Vector2 origin = (Vector2)transform.position + direction * 0.5f;
+            Vector2 origin = firePoint != null ? (Vector2)firePoint.position : (Vector2)transform.position + direction * 0.5f;
             RaycastHit2D hit = Physics2D.Raycast(origin, direction, rangedAttackRange, CombatUtils.MonsterMask);
 
             float damage = 0;
@@ -450,27 +496,48 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
             }
 
             // 모든 클라이언트에게 시각 효과 재생 요청
-            RPC_PlayShootEffects(damage, targetPos, hitPoint);
+            RPC_PlayShootEffects(origin, damage, targetPos, hitPoint);
         }
     }
 
     // ========== [원거리 공격 이펙트] ==========
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_PlayShootEffects(float damage, Vector3 targetPos, Vector2 endPoint)
+    private void RPC_PlayShootEffects(Vector2 startPoint, float damage, Vector3 targetPos, Vector2 endPoint)
     {
-        // 여기서 사운드 재생 및 LineRenderer 표시만 수행 (데미지 로직 삭제)
-        StartCoroutine(ShowRayLine(transform.position, endPoint));
+        // 무기 공격 애니메이션/이펙트
+        if (weaponController != null)
+        {
+            weaponController.PlayAttack();
+            if(targetPos !=  Vector3.zero)
+                Instantiate(weaponController.weaponEffect, targetPos, Quaternion.identity);
+        }
+
+        // 사운드 재생 및 LineRenderer 표시
+        StartCoroutine(ShowRayLine(startPoint, endPoint));
         if (damage > 0 && targetPos != Vector3.zero)
         {
-            GameObject dmgTextObj = Instantiate(damageTextPrefab, targetPos + Vector3.up * 0.5f, Quaternion.identity);
+            GameObject dmgTextObj = Instantiate(damageTextPrefab, targetPos + Vector3.up * 0.25f, Quaternion.identity);
             dmgTextObj.GetComponent<DamageText>().SetText(damage.ToString("F0"));
         }
     }
 
     // ========== [근거리 공격 이펙트] ==========
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_PlayMeleeEffects(Vector2 effectPos)
+    private void RPC_PlayMeleeEffects(Vector2 startPoint, float damage, Vector3 targetPos)
     {
+        // 무기 공격 애니메이션
+        if (weaponController != null)
+        {
+            weaponController.PlayAttack();
+            if (targetPos != Vector3.zero)
+                Instantiate(weaponController.weaponEffect, targetPos, Quaternion.identity);
+        }
+
+        if (damage > 0 && targetPos != Vector3.zero)
+        {
+            GameObject dmgTextObj = Instantiate(damageTextPrefab, targetPos + Vector3.up * 0.25f, Quaternion.identity);
+            dmgTextObj.GetComponent<DamageText>().SetText(damage.ToString("F0"));
+        }
     }
 
     // ========== IEntity 메서드 ==========
@@ -507,6 +574,8 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
 
         NetworkedIsDead = true;
 
+        SessionExit.Instance.gameObject.SetActive(true);
+
         // 죽음 사운드
         if (deathSound != null)
         {
@@ -529,11 +598,49 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
         if (index < 0 || index >= System.Enum.GetValues(typeof(ExpressionType)).Length)
             return;
 
-        expression = (ExpressionType)index;
-        OnExpressionChanged?.Invoke(index);
+        // 서버에 표정 변경 요청
+        if (Object.HasStateAuthority)
+        {
+            NetworkedExpression = index;
+        }
+        else if (Object.HasInputAuthority)
+        {
+            RPC_SetExpression(index);
+        }
+    }
 
-        // 표정 변경 시 디버그 스탯 업데이트
-        UpdateDebugStats();
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    private void RPC_SetExpression(int index, RpcInfo info = default)
+    {
+        if (index < 0 || index >= 4) return;
+        NetworkedExpression = index;
+    }
+
+    /// <summary>
+    /// 표정 변경 시 모든 클라이언트에서 호출됨
+    /// </summary>
+    private void OnExpressionChangedNetwork()
+    {
+        int index = NetworkedExpression;
+
+        // 애니메이션 오버라이드 컨트롤러 변경
+        if (animator != null && expressionAnimators != null && index < expressionAnimators.Length && expressionAnimators[index] != null)
+        {
+            animator.runtimeAnimatorController = expressionAnimators[index];
+        }
+
+        // 무기 타입도 변경
+        if (weaponController != null)
+        {
+            weaponController.SetWeaponType(index);
+        }
+
+        // 로컬 플레이어인 경우 UI 이벤트 및 디버그 스탯 업데이트
+        if (Object.HasInputAuthority)
+        {
+            OnExpressionChanged?.Invoke(index);
+            UpdateDebugStats();
+        }
     }
 
     /// <summary>
@@ -753,7 +860,7 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
 
         // 공격 타입에 따른 범위 표시
         Vector2 direction = (mouseWorldPosition - (Vector2)transform.position).normalized;
-        AttackRangeType attackType = ExpressionData.GetAttackRange(expression);
+        AttackRangeType attackType = ExpressionData.GetAttackRange(Expression);
 
         if (attackType == AttackRangeType.Melee)
         {

@@ -1,0 +1,26 @@
+using UnityEngine;
+
+public class MeleeEffect : MonoBehaviour
+{
+    private Animator anim;
+    [SerializeField] private float destroyDelay = 1.0f; // 애니메이션 길이에 맞춰 조절
+
+    void Awake()
+    {
+        anim = GetComponent<Animator>();
+    }
+
+    private void OnEnable()
+    {
+        int randomIndex = Random.Range(0, 4);
+
+        anim.Play("Melee_" + randomIndex);
+
+        Invoke(nameof(SelfDestroy), destroyDelay);
+    }
+
+    void SelfDestroy()
+    {
+        Destroy(gameObject);
+    }
+}

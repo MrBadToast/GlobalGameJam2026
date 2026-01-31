@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Spawner : MonoBehaviour, INetworkRunnerCallbacks
 {
@@ -67,6 +68,7 @@ public class Spawner : MonoBehaviour, INetworkRunnerCallbacks
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
     {
         Debug.Log($"[Fusion] 네트워크 종료. 사유: {shutdownReason}");
+        SceneManager.LoadScene("Title");
     }
 
     // 7. 씬 로드가 끝났을 때

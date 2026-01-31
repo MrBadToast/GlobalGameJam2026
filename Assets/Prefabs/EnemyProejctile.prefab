@@ -142,9 +142,6 @@ MonoBehaviour:
   travelSpeed: 7
   projectileDamage: 5
   projectileLifetime: 5
-  hurtLayer:
-    serializedVersion: 2
-    m_Bits: 64
 --- !u!58 &8890805142164406503
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -198,6 +195,7 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
+  - {fileID: 7401304048520200936}
   - {fileID: -964601332695365807}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &-964601332695365807

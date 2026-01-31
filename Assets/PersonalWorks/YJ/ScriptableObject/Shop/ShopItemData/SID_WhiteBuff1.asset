@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: SID_WhiteBuff1
   m_EditorClassIdentifier: Assembly-CSharp::ShopItemData
   itemData: {fileID: 11400000, guid: 14cdab4e70c03244f809541730a60e2d, type: 2}
-  price: 100
+  price: 500
   category: 1

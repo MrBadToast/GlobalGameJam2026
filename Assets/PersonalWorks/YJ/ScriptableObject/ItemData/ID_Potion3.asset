@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 423a98055e2dbda409caf99da26ec079, type: 3}
   m_Name: ID_Potion3
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: "\uD3EC\uC1583"
-  description: "\uB9DB\uC788\uB294 \uD3EC\uC1583"
-  icon: {fileID: 21300000, guid: 2f2e107794ce8944196d4392c9811b32, type: 3}
+  itemName: "\uB2EC\uC9DD\uC9C0\uADFC\uD55C \uD3EC\uC158"
+  description: "\uCCB4\uB825\uC774 15 \uCC39\uB2C8\uB2E4."
+  icon: {fileID: 2641930080378707185, guid: fbfdac78d142e854caa9a2d914d183fd, type: 3}
   itemType: 2
   category: 0
   attackModifier: 0

@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: SID_YellowBuff2
   m_EditorClassIdentifier: Assembly-CSharp::ShopItemData
   itemData: {fileID: 11400000, guid: 024824b4e59ad0641bba3e15da6f1897, type: 2}
-  price: 100
+  price: 500
   category: 3

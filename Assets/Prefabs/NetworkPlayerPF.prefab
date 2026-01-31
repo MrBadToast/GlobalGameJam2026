@@ -1,5 +1,147 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3421789224306407537
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4606657906478712785}
+  - component: {fileID: 4595667973931448661}
+  - component: {fileID: 8677940007277286115}
+  - component: {fileID: 1688540867711698229}
+  m_Layer: 30
+  m_Name: Weapon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4606657906478712785
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3421789224306407537}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5284077654240292550}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &4595667973931448661
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3421789224306407537}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 1
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 0
+  m_SpriteSortPoint: 0
+--- !u!95 &8677940007277286115
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3421789224306407537}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 9ff18f650ce462b4a8f95818e5f7c0c4, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1688540867711698229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3421789224306407537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8df2d91e1e381c41863ff0cc255a0a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponController
+  spriteRenderer: {fileID: 4595667973931448661}
+  animator: {fileID: 8677940007277286115}
+  weaponEffects:
+  - {fileID: 7861529962886012775, guid: 2763cd500afcbfb439b92afe054e8dde, type: 3}
+  - {fileID: 7861529962886012775, guid: 2763cd500afcbfb439b92afe054e8dde, type: 3}
+  - {fileID: 7757095502146494451, guid: 08232fd99f70cb746873a8ab3ebe7f45, type: 3}
+  - {fileID: 890510731200726621, guid: be0d650984e0136409fc34c9f56fbae7, type: 3}
+  weaponOverrideControllers:
+  - {fileID: 22100000, guid: d574b43df39805c4181ddad7838eff0a, type: 2}
+  - {fileID: 22100000, guid: 1db67fe81d7910646958b4121035537a, type: 2}
+  - {fileID: 22100000, guid: c63c64d96bdea4b46b7ad7f655db6811, type: 2}
+  - {fileID: 22100000, guid: b36c2d09a575a5f43bf808b5e3402072, type: 2}
+  orbitDistance: 0.7
+  offset: {x: 0, y: 0}
+  weaponEffect: {fileID: 0}
 --- !u!1 &7078136711671323623
 GameObject:
   m_ObjectHideFlags: 0
@@ -220,7 +362,7 @@ SpriteRenderer:
   m_SortingOrder: 10
   m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 1, g: 0, b: 0.27400684, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -392,6 +534,7 @@ Transform:
   - {fileID: 6818343969587609340}
   - {fileID: 2563963174704424571}
   - {fileID: 3434566078442446357}
+  - {fileID: 4606657906478712785}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2004669786547791024
@@ -538,7 +681,13 @@ MonoBehaviour:
   damageTextPrefab: {fileID: 5066689262041594168, guid: ef83c4ef34e0bb244aadff05828d25af, type: 3}
   maxHealth: 100
   _NetworkedHealth: 0
-  expression: 0
+  _NetworkedExpression: 0
+  expressionAnimators:
+  - {fileID: 22100000, guid: 72c4c206f5748d5469367f912799618e, type: 2}
+  - {fileID: 22100000, guid: 1ac34eda1c17ef5469e4ac28f79f4f25, type: 2}
+  - {fileID: 22100000, guid: 83c89c16fccdfff49b04ca354df3b4cd, type: 2}
+  - {fileID: 22100000, guid: 27db56a71e488c34b9b697b8370a853e, type: 2}
+  weaponController: {fileID: 1688540867711698229}
   _NetworkedIsDead:
     _value: 0
   _Money: 0
@@ -552,6 +701,7 @@ MonoBehaviour:
   meleeAttackRadius: 1.5
   meleeAttackOffset: 1
   attackCooldown: 0
+  firePoint: {fileID: 0}
   rangedAttackRange: 15
   lineRenderer: {fileID: 3223724806962535126}
   lineDisplayDuration: 0.1
@@ -561,6 +711,15 @@ MonoBehaviour:
   hitSound: {fileID: 8300000, guid: 956fd22b53107d0418739a8c9eb8eda8, type: 3}
   deathSound: {fileID: 8300000, guid: f2a37dca93d3a754aa517bc56fcb2021, type: 3}
   soundVolume: 1
+  _NetworkedMoveDirection: {x: 0, y: 0}
+  _BonusAttackArray: []
+  _BonusDamageTakenArray: []
+  _BonusMoveSpeedArray: []
+  _BonusAttackSpeedArray: []
+  debug_BonusAttack: 0
+  debug_BonusDamageTaken: 0
+  debug_BonusMoveSpeed: 0
+  debug_BonusAttackSpeed: 0
   mainCamera: {fileID: 0}
 --- !u!114 &4038964913041079132
 MonoBehaviour:

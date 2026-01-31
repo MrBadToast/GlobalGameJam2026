@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 423a98055e2dbda409caf99da26ec079, type: 3}
   m_Name: ID_RedBuff1
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: "\uB808\uB4DC \uBC84\uD5041"
-  description: "\uB808\uB4DC \uBC84\uD504 1\uB2E8\uACC4"
-  icon: {fileID: 21300000, guid: 81643640c8957cd4d98746ed4a2d0fd1, type: 3}
+  itemName: "\uC57D\uD55C \uC544\uB4DC\uB808\uB0A0\uB9B0"
+  description: "\uBD84\uB178 \uC0C1\uD0DC\uC5D0\uC11C\uC758 \uACF5\uACA9\uB825\uC774
+    2% \uC99D\uAC00\uD569\uB2C8\uB2E4."
+  icon: {fileID: 1350437119636000768, guid: 14b0c6a6871698443a051b63ba9f7af7, type: 3}
   itemType: 6
   category: 1
   attackModifier: 0.02

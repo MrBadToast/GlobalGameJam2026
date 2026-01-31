@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: SID_BlueBuff1
   m_EditorClassIdentifier: Assembly-CSharp::ShopItemData
   itemData: {fileID: 11400000, guid: 5b81dbfed7d25ff439710a2806505758, type: 2}
-  price: 100
+  price: 500
   category: 2

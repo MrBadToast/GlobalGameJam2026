@@ -5,14 +5,42 @@ using UnityEngine;
 
 public class EnemySpawner : NetworkBehaviour
 {
+    // 1. 싱글톤 인스턴스 추가 (편의성을 위해)
+    public static EnemySpawner Instance { get; private set; }
+
+    [SerializeField, LabelText("활성화할 NPC")] private GameObject npcObject;
+    [Networked] private NetworkBool isNpcActive { get; set; }
+
+    // 2. 동기화를 위해 [Networked] 사용 (서버가 값을 바꾸면 클라이언트에게 자동 전달)
+    public int currentWave { get; set; } = 1;
+
     [SerializeField] private bool spawnOnStart = true;
     [SerializeReference] public SpawnSegment[] spawnSegments;
 
     public override void Spawned()
     {
+        Instance = this;
         // 호스트만 스폰 루틴을 돌림
         if (Object.HasStateAuthority && spawnOnStart)
+        {
             StartCoroutine(Cor_SpawnProcess());
+        }
+    }
+
+    public override void Render()
+    {
+        if (npcObject != null)
+        {
+            npcObject.SetActive(isNpcActive);
+        }
+    }
+
+    public void SetNpcActive(bool active)
+    {
+        if (Object.HasStateAuthority)
+        {
+            isNpcActive = active;
+        }
     }
 
     IEnumerator Cor_SpawnProcess()
@@ -42,7 +70,8 @@ public class EnemySpawner : NetworkBehaviour
             for (int i = 0; i < spawnQuantity; i++)
             {
                 Vector3 pos = spawnPoint.position + Random.insideUnitSphere * spawnRange;
-                runner.Spawn(enemyPrefab, pos, Quaternion.identity);
+                NetworkObject enemy = runner.Spawn(enemyPrefab, pos, Quaternion.identity);
+                enemy.GetComponent<EnemyBehavior_Generic>().Setproperty(EnemySpawner.Instance.currentWave);
             }
             yield return null;
         }
@@ -63,7 +92,10 @@ public class EnemySpawner : NetworkBehaviour
         {
             for(int i = 0; i < repeatCount; i++)
             {
-                runner.Spawn(enemyPrefab, spawnPoint.position + Random.insideUnitSphere * spawnRange, Quaternion.identity);
+                NetworkObject enemy = runner.Spawn(enemyPrefab, spawnPoint.position + Random.insideUnitSphere * spawnRange, Quaternion.identity);
+                if(enemy)
+                    enemy.GetComponent<EnemyBehavior_Generic>().Setproperty(EnemySpawner.Instance.currentWave);
+                
                 yield return new WaitForSeconds(interaval);
             }
         }
@@ -73,9 +105,29 @@ public class EnemySpawner : NetworkBehaviour
     public class Wait : SpawnSegment
     {
         [SerializeField, LabelText("대기 시간(초)")] private float waitTime = 1f;
+        [SerializeField, LabelText("웨이브 증가 여부")] private bool incrementWave = true;
+
+        [SerializeField, LabelText("NPC 활성화 여부")] private bool activateNpc = true;
+        [SerializeField, LabelText("대기 후 NPC 비활성화?")] private bool deactivateAfterWait = true;
         public override IEnumerator Cor_Segment(NetworkRunner runner)
         {
+            if (activateNpc)
+            {
+                EnemySpawner.Instance.SetNpcActive(true);
+            }
+
             yield return new WaitForSeconds(waitTime);
+
+            if (incrementWave)
+            {
+                EnemySpawner.Instance.currentWave++;
+            }
+
+            // 대기 종료 후 NPC 비활성화 처리
+            if (deactivateAfterWait)
+            {
+                EnemySpawner.Instance.SetNpcActive(false);
+            }
         }
     }
 

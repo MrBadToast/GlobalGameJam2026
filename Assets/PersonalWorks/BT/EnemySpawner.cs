@@ -8,6 +8,9 @@ public class EnemySpawner : NetworkBehaviour
     // 1. 싱글톤 인스턴스 추가 (편의성을 위해)
     public static EnemySpawner Instance { get; private set; }
 
+    [SerializeField, LabelText("활성화할 NPC")] private GameObject npcObject;
+    [Networked] private NetworkBool isNpcActive { get; set; }
+
     // 2. 동기화를 위해 [Networked] 사용 (서버가 값을 바꾸면 클라이언트에게 자동 전달)
     public int currentWave { get; set; } = 1;
 
@@ -21,6 +24,22 @@ public class EnemySpawner : NetworkBehaviour
         if (Object.HasStateAuthority && spawnOnStart)
         {
             StartCoroutine(Cor_SpawnProcess());
+        }
+    }
+
+    public override void Render()
+    {
+        if (npcObject != null)
+        {
+            npcObject.SetActive(isNpcActive);
+        }
+    }
+
+    public void SetNpcActive(bool active)
+    {
+        if (Object.HasStateAuthority)
+        {
+            isNpcActive = active;
         }
     }
 
@@ -87,14 +106,27 @@ public class EnemySpawner : NetworkBehaviour
     {
         [SerializeField, LabelText("대기 시간(초)")] private float waitTime = 1f;
         [SerializeField, LabelText("웨이브 증가 여부")] private bool incrementWave = true;
+
+        [SerializeField, LabelText("NPC 활성화 여부")] private bool activateNpc = true;
+        [SerializeField, LabelText("대기 후 NPC 비활성화?")] private bool deactivateAfterWait = true;
         public override IEnumerator Cor_Segment(NetworkRunner runner)
         {
+            if (activateNpc)
+            {
+                EnemySpawner.Instance.SetNpcActive(true);
+            }
+
             yield return new WaitForSeconds(waitTime);
-            // waitTime까지 쉬고 다음 웨이브로 넘어감
-            // 전달받은 spawner의 변수를 직접 수정
+
             if (incrementWave)
             {
                 EnemySpawner.Instance.currentWave++;
+            }
+
+            // 대기 종료 후 NPC 비활성화 처리
+            if (deactivateAfterWait)
+            {
+                EnemySpawner.Instance.SetNpcActive(false);
             }
         }
     }

@@ -565,7 +565,7 @@ MonoBehaviour:
   attackDuration: 0.6
   detectionRange: 15
   attackRange: 7
-  attackCooldown: {x: 0.9889796, y: 2.9285715}
+  attackCooldown: {x: 2.3912663, y: 5.50393}
   seekInterval: {x: 0.5, y: 1.225}
   hurtCooldown: 0.3
   attackTarget:
@@ -601,6 +601,7 @@ MonoBehaviour:
   aud_Death: {fileID: 3883670216003263871}
   spriteAnimator: {fileID: 526367405073314217}
   attackHitbox: {fileID: 8018695944962425637}
+  weaponController: {fileID: 0}
   damageTextPrefab: {fileID: 5066689262041594168, guid: ef83c4ef34e0bb244aadff05828d25af, type: 3}
   projectilePrefab: {fileID: 1288051138822001628, guid: f95fc37e6ee25d04998f57e2cc219ae7, type: 3}
   moneyPrefab:

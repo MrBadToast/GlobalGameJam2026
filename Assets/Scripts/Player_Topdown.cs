@@ -475,7 +475,8 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
         if (weaponController != null)
         {
             weaponController.PlayAttack();
-            Instantiate(weaponController.weaponEffect, targetPos, Quaternion.identity);
+            if(targetPos !=  Vector3.zero)
+                Instantiate(weaponController.weaponEffect, targetPos, Quaternion.identity);
         }
 
         // 사운드 재생 및 LineRenderer 표시
@@ -495,7 +496,8 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
         if (weaponController != null)
         {
             weaponController.PlayAttack();
-            Instantiate(weaponController.weaponEffect, targetPos, Quaternion.identity);
+            if (targetPos != Vector3.zero)
+                Instantiate(weaponController.weaponEffect, targetPos, Quaternion.identity);
         }
 
         if (damage > 0 && targetPos != Vector3.zero)

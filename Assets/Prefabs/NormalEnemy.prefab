@@ -683,14 +683,14 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  aud_Fire: {fileID: 1639465153692933812}
+  aud_Fire: {fileID: 0}
   aud_Swing: {fileID: 2789007570093666506}
   aud_Hurt: {fileID: 6547030656261281213}
   aud_Death: {fileID: 3883670216003263871}
   spriteAnimator: {fileID: 526367405073314217}
   attackHitbox: {fileID: 8018695944962425637}
-  damageTextPrefab: {fileID: 5066689262041594168, guid: ef83c4ef34e0bb244aadff05828d25af, type: 3}
-  projectilePrefab: {fileID: 1288051138822001628, guid: d8a29084ec6e00348a327bd43c657cc0, type: 3}
+  damageTextPrefab: {fileID: 0}
+  projectilePrefab: {fileID: 0}
   trackingTarget: {fileID: 0}
   currentHealth: 0
   lastAttackTimer: 0

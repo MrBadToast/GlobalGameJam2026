@@ -772,7 +772,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82beb68869b05b146860bd04229a9ca3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyBehavior_Generic
-  isProjectileAttack: 1
+  _CurrentHealth: 0
+  _IsDead: 0
+  _NetworkedHeading: {x: 0, y: 0}
+  isProjectileAttack: 0
   weaponType: 0
   expressionType: 0
   maxHealth: 100
@@ -812,14 +815,14 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  aud_Fire: {fileID: 9193778230458450557}
+  aud_Fire: {fileID: 0}
   aud_Swing: {fileID: 1986020806108617350}
   aud_Hurt: {fileID: 1111552159736521111}
   aud_Death: {fileID: 5702448450223231198}
   spriteAnimator: {fileID: 1275883655539085124}
   attackHitbox: {fileID: 8741141948520440591}
-  damageTextPrefab: {fileID: 5066689262041594168, guid: f0e987a57f08625418ea7cb139ab6fd7, type: 3}
-  projectilePrefab: {fileID: 1288051138822001628, guid: 3bff9591dbbca0a4585acdce5f57f728, type: 3}
+  damageTextPrefab: {fileID: 0}
+  projectilePrefab: {fileID: 0}
   trackingTarget: {fileID: 0}
   currentHealth: 0
   lastAttackTimer: 0

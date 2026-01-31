@@ -45,19 +45,17 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
 
     // ========== 플레이어 전용 ==========
     [Header("Player Only")]
-    [SerializeField] private int money = 0;
-    public int Money => money;
+    [Networked] public int Money { get; set; }
 
     [Header("Potion")]
     [SerializeField] private ItemData[] potionTypes = new ItemData[3];  // 물약 종류 3개 (Inspector에서 할당)
-    [SerializeField] private int[] potionCounts = new int[3];           // 각 물약 보유 개수
+    [Networked, Capacity(3)] public NetworkArray<int> PotionCounts => default;
     private int selectedPotionIndex = 0;
 
     public int SelectedPotionIndex => selectedPotionIndex;
     public ItemData SelectedPotionData => potionTypes[selectedPotionIndex];
-    public int SelectedPotionCount => potionCounts[selectedPotionIndex];
+    public int SelectedPotionCount => PotionCounts[selectedPotionIndex];
     public ItemData[] PotionTypes => potionTypes;
-    public int[] PotionCounts => potionCounts;
 
     // 물약 변경 이벤트 (UI 갱신용)
     public event Action OnPotionChanged;
@@ -426,9 +424,61 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     }
 
     /// <summary>
-    /// 골드 획득
+    /// 골드 획득 (서버에서만 호출)
     /// </summary>
-    public void AddMoney(int amount) => money += amount;
+    public void AddMoney(int amount)
+    {
+        if (Object.HasStateAuthority)
+        {
+            Money += amount;
+        }
+        else
+        {
+            RPC_AddMoney(amount);
+        }
+    }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    public void RPC_AddMoney(int amount, RpcInfo info = default)
+    {
+        Money += amount;
+    }
+
+    /// <summary>
+    /// 상점 아이템 구매 (클라이언트 → 서버)
+    /// </summary>
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    public void RPC_BuyItem(int price, int potionIndex, RpcInfo info = default)
+    {
+        // 서버에서 검증
+        if (Money < price) return;
+        if (potionIndex < 0 || potionIndex >= 3) return;
+
+        // 돈 차감
+        Money -= price;
+
+        // 물약 추가
+        PotionCounts.Set(potionIndex, PotionCounts[potionIndex] + 1);
+    }
+
+    /// <summary>
+    /// 버프 아이템 구매 (클라이언트 → 서버)
+    /// </summary>
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    public void RPC_BuyBuff(int price, float atk, float dmgTaken, float moveSpd, float atkSpd, RpcInfo info = default)
+    {
+        // 서버에서 검증
+        if (Money < price) return;
+
+        // 돈 차감
+        Money -= price;
+
+        // 버프 적용
+        bonusStats.AddAttack(atk);
+        bonusStats.AddDamageTaken(dmgTaken);
+        bonusStats.AddMoveSpeed(moveSpd);
+        bonusStats.AddAttackSpeed(atkSpd);
+    }
 
     /// <summary>
     /// 입력 활성화/비활성화 (UI 열림 등)
@@ -486,8 +536,7 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
             int potionIndex = GetPotionIndex(item.itemType);
             if (potionIndex >= 0)
             {
-                potionCounts[potionIndex]++;
-                OnPotionChanged?.Invoke();
+                AddPotion(potionIndex, 1);
                 return true;
             }
         }
@@ -501,8 +550,23 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     public void AddPotion(int potionIndex, int amount = 1)
     {
         if (potionIndex < 0 || potionIndex >= 3) return;
-        potionCounts[potionIndex] += amount;
-        OnPotionChanged?.Invoke();
+
+        if (Object.HasStateAuthority)
+        {
+            PotionCounts.Set(potionIndex, PotionCounts[potionIndex] + amount);
+            OnPotionChanged?.Invoke();
+        }
+        else
+        {
+            RPC_AddPotion(potionIndex, amount);
+        }
+    }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    public void RPC_AddPotion(int potionIndex, int amount, RpcInfo info = default)
+    {
+        if (potionIndex < 0 || potionIndex >= 3) return;
+        PotionCounts.Set(potionIndex, PotionCounts[potionIndex] + amount);
     }
 
     /// <summary>
@@ -510,20 +574,42 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     /// </summary>
     public bool UseSelectedPotion()
     {
-        if (potionCounts[selectedPotionIndex] <= 0) return false;
+        if (PotionCounts[selectedPotionIndex] <= 0) return false;
         if (potionTypes[selectedPotionIndex] == null) return false;
 
-        ItemData potion = potionTypes[selectedPotionIndex];
+        if (Object.HasStateAuthority)
+        {
+            ApplyPotionEffect(selectedPotionIndex);
+        }
+        else
+        {
+            RPC_UsePotion(selectedPotionIndex);
+        }
+
+        return true;
+    }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    public void RPC_UsePotion(int potionIndex, RpcInfo info = default)
+    {
+        if (potionIndex < 0 || potionIndex >= 3) return;
+        if (PotionCounts[potionIndex] <= 0) return;
+        if (potionTypes[potionIndex] == null) return;
+
+        ApplyPotionEffect(potionIndex);
+    }
+
+    private void ApplyPotionEffect(int potionIndex)
+    {
+        ItemData potion = potionTypes[potionIndex];
 
         // 체력 회복
         currentHealth += potion.healAmount;
         if (currentHealth > maxHealth) currentHealth = maxHealth;
 
         // 개수 감소
-        potionCounts[selectedPotionIndex]--;
+        PotionCounts.Set(potionIndex, PotionCounts[potionIndex] - 1);
         OnPotionChanged?.Invoke();
-
-        return true;
     }
 
     /// <summary>
@@ -556,7 +642,7 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     public int GetPotionCount(int index)
     {
         if (index < 0 || index >= 3) return 0;
-        return potionCounts[index];
+        return PotionCounts[index];
     }
 
     // ========== Gizmos ==========

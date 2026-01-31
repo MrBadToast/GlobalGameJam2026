@@ -30,16 +30,17 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     // ========== IEntity 구현 ==========
     [Header("Stats")]
     [SerializeField] private float maxHealth = 100f;
-    private float currentHealth;
+    [Networked] public float NetworkedHealth { get; set; }
 
     [Header("Expression")]
     [SerializeField] private ExpressionType expression;
 
     // IEntity 속성
     public float MaxHealth => maxHealth;
-    public float CurrentHealth => currentHealth;
+    public float CurrentHealth => NetworkedHealth;
     public ExpressionType Expression => expression;
-    public bool IsDead { get; private set; } = false;
+    [Networked] public NetworkBool NetworkedIsDead { get; set; }
+    public bool IsDead => NetworkedIsDead;
     public Animator Animator => animator;
     public GameObject GameObject => gameObject;
 
@@ -109,11 +110,19 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     public override void Spawned()
     {
         OnNickNameChanged();
+
+        // 호스트에서 체력 초기화
+        if (Object.HasStateAuthority)
+        {
+            NetworkedHealth = maxHealth;
+            NetworkedIsDead = false;
+        }
+
         if (Object.HasInputAuthority)
         {
             Local = this;
 
-            // 2. 로컬 플레이어의 닉네임을 설정
+            // 로컬 플레이어의 닉네임을 설정
             string savedNickName = PlayerPrefs.GetString("PlayerNickName", "Unknown");
 
             // 호스트라면 직접 설정, 클라이언트라면 RPC 호출
@@ -141,7 +150,6 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
         animator = GetComponentInChildren<Animator>();
         rb = GetComponent<Rigidbody2D>();
         input = new InputSystem_Actions();
-        currentHealth = maxHealth;
         mainCamera = Camera.main;
     }
 
@@ -374,7 +382,17 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     {
         if (IsDead) return;
 
-        currentHealth -= damage;
+        // 서버에서만 체력 감소 처리
+        if (Object.HasStateAuthority)
+        {
+            NetworkedHealth -= damage;
+
+            if (NetworkedHealth <= 0)
+            {
+                NetworkedHealth = 0;
+                Die();
+            }
+        }
 
         // 피격 사운드
         if (hitSound != null)
@@ -384,19 +402,13 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
 
         // 피격 애니메이션
         animator?.SetTrigger("Hit");
-
-        if (currentHealth <= 0)
-        {
-            currentHealth = 0;
-            Die();
-        }
     }
 
     public void Die()
     {
         if (IsDead) return;
 
-        IsDead = true;
+        NetworkedIsDead = true;
 
         // 죽음 사운드
         if (deathSound != null)
@@ -424,28 +436,14 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     }
 
     /// <summary>
-    /// 골드 획득 (서버에서만 호출)
+    /// 골드 획득
     /// </summary>
-    public void AddMoney(int amount)
-    {
-        if (Object.HasStateAuthority)
-        {
-            Money += amount;
-        }
-        else
-        {
-            RPC_AddMoney(amount);
-        }
-    }
+    public void AddMoney(int amount) => Money += amount;
 
-    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    public void RPC_AddMoney(int amount, RpcInfo info = default)
-    {
-        Money += amount;
-    }
+    // ========== 상점 RPC ==========
 
     /// <summary>
-    /// 상점 아이템 구매 (클라이언트 → 서버)
+    /// 물약 구매 (클라이언트 → 서버)
     /// </summary>
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
     public void RPC_BuyItem(int price, int potionIndex, RpcInfo info = default)
@@ -459,6 +457,7 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
 
         // 물약 추가
         PotionCounts.Set(potionIndex, PotionCounts[potionIndex] + 1);
+        OnPotionChanged?.Invoke();
     }
 
     /// <summary>
@@ -515,6 +514,12 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
             if (selectedPotionIndex > 2) selectedPotionIndex = 0;
             OnPotionChanged?.Invoke();
         }
+
+        // Q키로 물약 사용
+        if (UnityEngine.Input.GetKeyDown(KeyCode.Q))
+        {
+            UseSelectedPotion();
+        }
     }
 
     /// <summary>
@@ -536,7 +541,8 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
             int potionIndex = GetPotionIndex(item.itemType);
             if (potionIndex >= 0)
             {
-                AddPotion(potionIndex, 1);
+                PotionCounts.Set(potionIndex, PotionCounts[potionIndex] + 1);
+                OnPotionChanged?.Invoke();
                 return true;
             }
         }
@@ -550,23 +556,8 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     public void AddPotion(int potionIndex, int amount = 1)
     {
         if (potionIndex < 0 || potionIndex >= 3) return;
-
-        if (Object.HasStateAuthority)
-        {
-            PotionCounts.Set(potionIndex, PotionCounts[potionIndex] + amount);
-            OnPotionChanged?.Invoke();
-        }
-        else
-        {
-            RPC_AddPotion(potionIndex, amount);
-        }
-    }
-
-    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    public void RPC_AddPotion(int potionIndex, int amount, RpcInfo info = default)
-    {
-        if (potionIndex < 0 || potionIndex >= 3) return;
         PotionCounts.Set(potionIndex, PotionCounts[potionIndex] + amount);
+        OnPotionChanged?.Invoke();
     }
 
     /// <summary>
@@ -577,15 +568,10 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
         if (PotionCounts[selectedPotionIndex] <= 0) return false;
         if (potionTypes[selectedPotionIndex] == null) return false;
 
-        if (Object.HasStateAuthority)
-        {
-            ApplyPotionEffect(selectedPotionIndex);
-        }
-        else
-        {
-            RPC_UsePotion(selectedPotionIndex);
-        }
+        Debug.Log($"{selectedPotionIndex}");
 
+        // 서버에 물약 사용 요청
+        RPC_UsePotion(selectedPotionIndex);
         return true;
     }
 
@@ -596,16 +582,11 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
         if (PotionCounts[potionIndex] <= 0) return;
         if (potionTypes[potionIndex] == null) return;
 
-        ApplyPotionEffect(potionIndex);
-    }
-
-    private void ApplyPotionEffect(int potionIndex)
-    {
         ItemData potion = potionTypes[potionIndex];
 
         // 체력 회복
-        currentHealth += potion.healAmount;
-        if (currentHealth > maxHealth) currentHealth = maxHealth;
+        NetworkedHealth += potion.healAmount;
+        if (NetworkedHealth > maxHealth) NetworkedHealth = maxHealth;
 
         // 개수 감소
         PotionCounts.Set(potionIndex, PotionCounts[potionIndex] - 1);

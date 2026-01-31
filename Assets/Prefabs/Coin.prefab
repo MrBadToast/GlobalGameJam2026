@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3961975878179591407}
   - component: {fileID: 8570922344134759433}
   - component: {fileID: 5976355538818315970}
+  - component: {fileID: 7098065229495222120}
   m_Layer: 0
   m_Name: Coin
   m_TagString: Untagged
@@ -158,10 +159,28 @@ MonoBehaviour:
   m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
-  SortKey: 3510947901
+  SortKey: 3436353812
   ObjectInterest: 1
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 8570922344134759433}
+  - {fileID: 7098065229495222120}
   ForceRemoteRenderTimeframe: 0
+--- !u!114 &7098065229495222120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3332682036427532289}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkTransform
+  _stateAuthorityChangeErrorCorrectionDelta: 0
+  SyncScale: 0
+  SyncParent: 0
+  _autoAOIOverride: 1
+  DisableSharedModeInterpolation: 0

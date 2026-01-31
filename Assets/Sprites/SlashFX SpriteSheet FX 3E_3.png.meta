@@ -1,0 +1,314 @@
+fileFormatVersion: 2
+guid: a40b3017aeb6385429466ab7d95d14e6
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 2210707094219388226
+    second: SlashFX SpriteSheet FX 3E_3_0
+  - first:
+      213: -7496005249126756347
+    second: SlashFX SpriteSheet FX 3E_3_1
+  - first:
+      213: -5584870689248977134
+    second: SlashFX SpriteSheet FX 3E_3_2
+  - first:
+      213: -8832271352760426257
+    second: SlashFX SpriteSheet FX 3E_3_3
+  - first:
+      213: -7368697219776121207
+    second: SlashFX SpriteSheet FX 3E_3_4
+  - first:
+      213: -3896973963517794565
+    second: SlashFX SpriteSheet FX 3E_3_5
+  - first:
+      213: 4387414320888990539
+    second: SlashFX SpriteSheet FX 3E_3_6
+  - first:
+      213: -2255890058082214371
+    second: SlashFX SpriteSheet FX 3E_3_7
+  - first:
+      213: -6526407479185311101
+    second: SlashFX SpriteSheet FX 3E_3_8
+  - first:
+      213: 545900941103694723
+    second: SlashFX SpriteSheet FX 3E_3_9
+  - first:
+      213: -7070018384357383608
+    second: SlashFX SpriteSheet FX 3E_3_10
+  - first:
+      213: 999365357766827138
+    second: SlashFX SpriteSheet FX 3E_3_11
+  - first:
+      213: -1738323691247065194
+    second: SlashFX SpriteSheet FX 3E_3_12
+  - first:
+      213: 4059515977359491578
+    second: SlashFX SpriteSheet FX 3E_3_13
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: SlashFX SpriteSheet FX 3E_3_0
+      rect:
+        serializedVersion: 2
+        x: 633
+        y: 64
+        width: 128
+        height: 128
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 245f16da3620eae10800000000000000
+      internalID: 2210707094219388226
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SlashFX SpriteSheet FX 3E_3_1
+      rect:
+        serializedVersion: 2
+        x: 823
+        y: 64
+        width: 128
+        height: 128
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 500165301f6d8f790800000000000000
+      internalID: -7496005249126756347
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SlashFX SpriteSheet FX 3E_3_3
+      rect:
+        serializedVersion: 2
+        x: 1016
+        y: 64
+        width: 128
+        height: 128
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe02bd200087d6580800000000000000
+      internalID: -8832271352760426257
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SlashFX SpriteSheet FX 3E_3_4
+      rect:
+        serializedVersion: 2
+        x: 2166
+        y: 64
+        width: 128
+        height: 128
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 986f5dd6be02db990800000000000000
+      internalID: -7368697219776121207
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SlashFX SpriteSheet FX 3E_3_6
+      rect:
+        serializedVersion: 2
+        x: 2358
+        y: 64
+        width: 128
+        height: 128
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b4bcc0f441a33ec30800000000000000
+      internalID: 4387414320888990539
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SlashFX SpriteSheet FX 3E_3_7
+      rect:
+        serializedVersion: 2
+        x: 2554
+        y: 64
+        width: 128
+        height: 128
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d1e9ca3c1f771b0e0800000000000000
+      internalID: -2255890058082214371
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 93dbe2b1be3c6684dabbaf3c0e89b4c1
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":128.0,"y":128.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      SlashFX SpriteSheet FX 3E_3_0: 2210707094219388226
+      SlashFX SpriteSheet FX 3E_3_1: -7496005249126756347
+      SlashFX SpriteSheet FX 3E_3_2: -5584870689248977134
+      SlashFX SpriteSheet FX 3E_3_3: -8832271352760426257
+      SlashFX SpriteSheet FX 3E_3_4: -7368697219776121207
+      SlashFX SpriteSheet FX 3E_3_5: -3896973963517794565
+      SlashFX SpriteSheet FX 3E_3_6: 4387414320888990539
+      SlashFX SpriteSheet FX 3E_3_7: -2255890058082214371
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

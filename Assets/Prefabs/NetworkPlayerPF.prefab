@@ -220,7 +220,7 @@ SpriteRenderer:
   m_SortingOrder: 10
   m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 1, g: 0, b: 0.27400684, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -538,7 +538,12 @@ MonoBehaviour:
   damageTextPrefab: {fileID: 5066689262041594168, guid: ef83c4ef34e0bb244aadff05828d25af, type: 3}
   maxHealth: 100
   _NetworkedHealth: 0
-  expression: 0
+  _NetworkedExpression: 0
+  expressionAnimators:
+  - {fileID: 22100000, guid: 72c4c206f5748d5469367f912799618e, type: 2}
+  - {fileID: 22100000, guid: 1ac34eda1c17ef5469e4ac28f79f4f25, type: 2}
+  - {fileID: 22100000, guid: 83c89c16fccdfff49b04ca354df3b4cd, type: 2}
+  - {fileID: 22100000, guid: 27db56a71e488c34b9b697b8370a853e, type: 2}
   _NetworkedIsDead:
     _value: 0
   _Money: 0
@@ -561,6 +566,15 @@ MonoBehaviour:
   hitSound: {fileID: 8300000, guid: 956fd22b53107d0418739a8c9eb8eda8, type: 3}
   deathSound: {fileID: 8300000, guid: f2a37dca93d3a754aa517bc56fcb2021, type: 3}
   soundVolume: 1
+  _NetworkedMoveDirection: {x: 0, y: 0}
+  _BonusAttackArray: []
+  _BonusDamageTakenArray: []
+  _BonusMoveSpeedArray: []
+  _BonusAttackSpeedArray: []
+  debug_BonusAttack: 0
+  debug_BonusDamageTaken: 0
+  debug_BonusMoveSpeed: 0
+  debug_BonusAttackSpeed: 0
   mainCamera: {fileID: 0}
 --- !u!114 &4038964913041079132
 MonoBehaviour:

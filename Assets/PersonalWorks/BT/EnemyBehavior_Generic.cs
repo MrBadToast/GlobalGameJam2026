@@ -94,7 +94,7 @@ public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
     public WeaponType Weapon => weaponType;
     //public NetworkBool IsDead => isDead;
 
-    public GameObject GameObject => this.GameObject;
+    public GameObject GameObject => this.gameObject;
 
     public EntityStats BonusStats => bonusStats;
     

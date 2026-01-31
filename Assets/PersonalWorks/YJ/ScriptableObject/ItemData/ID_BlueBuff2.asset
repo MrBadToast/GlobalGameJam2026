@@ -17,8 +17,8 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 6594ef24194c39641b85a94493172aad, type: 3}
   itemType: 5
   category: 1
-  attackModifier: 100
-  damageTakenModifier: 0
+  attackModifier: 0
+  damageTakenModifier: -0.02
   moveSpeedModifier: 0
   attackSpeedModifier: 0
   healAmount: 0

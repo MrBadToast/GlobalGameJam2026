@@ -694,6 +694,10 @@ MonoBehaviour:
   attackHitbox: {fileID: 8018695944962425637}
   damageTextPrefab: {fileID: 0}
   projectilePrefab: {fileID: 0}
+  moneyPrefab:
+    RawGuidValue: 00000000000000000000000000000000
+  dropMoneyMin: 5
+  dropMoneyMax: 15
   trackingTarget: {fileID: 0}
   currentHealth: 0
   lastAttackTimer: 0

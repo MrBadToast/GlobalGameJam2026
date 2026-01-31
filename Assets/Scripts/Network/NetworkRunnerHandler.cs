@@ -10,6 +10,7 @@ using System;
 
 public class NetworkRunnerHandler : MonoBehaviour
 {
+    public static NetworkRunnerHandler _instance;
     public NetworkRunner networkRunnerPrefab;
 
     NetworkRunner networkRunner;
@@ -19,14 +20,38 @@ public class NetworkRunnerHandler : MonoBehaviour
 
     private void Awake()
     {
-        DontDestroyOnLoad(gameObject);
+        if (_instance == null)
+        {
+            _instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            // 이미 존재한다면 새로 만들어진 중복 객체를 파괴
+            Destroy(gameObject);
+        }
     }
 
     public void FirstJoin()
     {
+        if (networkRunner != null)
+        {
+            // 아직 작동 중이라면 셧다운 시도
+            if (networkRunner.IsRunning)
+            {
+                networkRunner.Shutdown();
+            }
+
+            // 하이어라키에서 제거
+            Destroy(networkRunner.gameObject);
+            networkRunner = null;
+        }
+
+        // 완전히 깨끗한 상태에서 다시 생성
         networkRunner = Instantiate(networkRunnerPrefab);
-        networkRunner.name = "NetworkRunner";
-        var clientTask = InitializeNetworkRunner(
+        networkRunner.name = "NetworkRunner_" + Time.frameCount; // 이름 중복 방지
+
+        InitializeNetworkRunner(
             networkRunner,
             GameMode.AutoHostOrClient,
             NetAddress.Any(),
@@ -34,7 +59,7 @@ public class NetworkRunnerHandler : MonoBehaviour
             null
         );
 
-        Debug.Log($"Server NetworkRunner Started!!!");
+        Debug.Log($"NetworkRunner Re-Started!!!");
     }
 
     private void Start()

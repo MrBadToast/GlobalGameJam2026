@@ -135,9 +135,9 @@ public class ShopUI : MonoBehaviour
         gameObject.SetActive(true);
 
         // 플레이어 입력 비활성화
-        if (Player_Topdown.Instance != null)
+        if (Player_Topdown.Local != null)
         {
-            Player_Topdown.Instance.SetInputEnabled(false);
+            Player_Topdown.Local.SetInputEnabled(false);
         }
     }
 
@@ -149,9 +149,9 @@ public class ShopUI : MonoBehaviour
         gameObject.SetActive(false);
 
         // 플레이어 입력 활성화
-        if (Player_Topdown.Instance != null)
+        if (Player_Topdown.Local != null)
         {
-            Player_Topdown.Instance.SetInputEnabled(true);
+            Player_Topdown.Local.SetInputEnabled(true);
         }
     }
 }

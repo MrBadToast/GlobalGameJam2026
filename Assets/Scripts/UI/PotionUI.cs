@@ -17,24 +17,24 @@ public class PotionUI : MonoBehaviour
 
     private void Start()
     {
-        if (Player_Topdown.Instance != null)
+        if (Player_Topdown.Local != null)
         {
-            Player_Topdown.Instance.OnPotionChanged += UpdateUI;
+            Player_Topdown.Local.OnPotionChanged += UpdateUI;
             UpdateUI();
         }
     }
 
     private void OnDestroy()
     {
-        if (Player_Topdown.Instance != null)
+        if (Player_Topdown.Local != null)
         {
-            Player_Topdown.Instance.OnPotionChanged -= UpdateUI;
+            Player_Topdown.Local.OnPotionChanged -= UpdateUI;
         }
     }
 
     private void UpdateUI()
     {
-        var player = Player_Topdown.Instance;
+        var player = Player_Topdown.Local;
         if (player == null) return;
 
         // 선택된 물약 데이터

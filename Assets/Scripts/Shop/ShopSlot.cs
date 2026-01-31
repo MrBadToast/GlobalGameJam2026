@@ -55,30 +55,53 @@ public class ShopSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     private void OnBuyClicked()
     {
-        if (shopItemData == null) return;
+        if (shopItemData == null || shopItemData.itemData == null) return;
 
-        var player = Player_Topdown.Instance;
+        var player = Player_Topdown.Local;
         if (player == null) return;
 
-        // 돈 체크
+        // 돈 체크 (로컬에서 먼저 확인)
         if (player.Money < shopItemData.price)
         {
             Debug.Log("돈이 부족합니다!");
             return;
         }
 
-        // 구매 처리
-        bool success = player.AddItem(shopItemData.itemData);
+        var item = shopItemData.itemData;
 
-        if (success)
+        // 카테고리에 따라 다른 RPC 호출
+        if (item.category == ItemCategory.Potion)
         {
-            // 돈 차감
-            player.AddMoney(-shopItemData.price);
-            Debug.Log($"{shopItemData.itemData.itemName} 구매 완료!");
+            // 물약 구매
+            int potionIndex = GetPotionIndex(item.itemType);
+            if (potionIndex >= 0)
+            {
+                player.RPC_BuyItem(shopItemData.price, potionIndex);
+                Debug.Log($"{item.itemName} 구매 완료!");
+            }
         }
-        else
+        else if (item.category == ItemCategory.Buff)
         {
-            Debug.Log("아이템을 추가할 수 없습니다!");
+            // 버프 구매
+            player.RPC_BuyBuff(
+                shopItemData.price,
+                item.attackModifier,
+                item.damageTakenModifier,
+                item.moveSpeedModifier,
+                item.attackSpeedModifier
+            );
+            Debug.Log($"{item.itemName} 구매 완료!");
+        }
+    }
+
+    private int GetPotionIndex(ItemType itemType)
+    {
+        switch (itemType)
+        {
+            case ItemType.Potion1: return 0;
+            case ItemType.Potion2: return 1;
+            case ItemType.Potion3: return 2;
+            default: return -1;
         }
     }
 

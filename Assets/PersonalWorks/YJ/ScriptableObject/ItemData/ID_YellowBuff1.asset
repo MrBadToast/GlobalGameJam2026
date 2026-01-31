@@ -17,7 +17,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 2f2e107794ce8944196d4392c9811b32, type: 3}
   itemType: 4
   category: 1
-  attackModifier: 100
+  attackModifier: 0.02
   damageTakenModifier: 0
   moveSpeedModifier: 0
   attackSpeedModifier: 0

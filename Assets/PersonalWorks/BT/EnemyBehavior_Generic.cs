@@ -198,7 +198,7 @@ public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
         }
         public override void UpdateState()
         {
-            if (enemy.lastSeekTimer >= nextSeekTime + Time.deltaTime)
+            if (enemy.lastSeekTimer >= nextSeekTime + Time.time)
             {
                 enemy.lastSeekTimer = Time.time;
                 enemy.DecideForState(enemy);
@@ -338,7 +338,7 @@ public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
         }
         public override void UpdateState()
         {
-            timeStaggered += Time.deltaTime;
+            timeStaggered += Time.fixedDeltaTime;
             enemy.rbody.linearVelocity = pushForce * enemy.staggerOffCurve.Evaluate(timeStaggered / staggerDuration);
 
             if (timeStaggered >= staggerDuration)
@@ -367,7 +367,7 @@ public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
 
         public override void UpdateState()
         {
-            despawnTimer += Time.deltaTime;
+            despawnTimer += Time.fixedDeltaTime;
 
             if (despawnTimer >= despawnDelay)
             {

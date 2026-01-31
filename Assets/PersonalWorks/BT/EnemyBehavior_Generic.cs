@@ -54,6 +54,10 @@ public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
     [SerializeField] private int dropMoneyMin = 5;
     [SerializeField] private int dropMoneyMax = 15;
 
+    [Title("Death Effect")]
+    [SerializeField] private GameObject deathEffectPrefab;
+    [SerializeField] private float deathEffectSpeed = 15f;
+
     [Title("Debug")]
     [SerializeField] private Transform trackingTarget;
 
@@ -152,11 +156,40 @@ public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
     {
         // ȣ��Ʈ�� �ƴ϶�� �Ʒ� ������ �������� ����
         if (!Object.HasStateAuthority || IsDead) return;
-        
+
         if (currentMovementState != null)
             currentMovementState.UpdateState();
 
+        // 타겟이 DetectionRange 내에 있으면 무기를 해당 방향으로 회전
+        UpdateWeaponAim();
+
         rbody.linearVelocity = Vector2.Lerp(rbody.linearVelocity, Vector2.zero, 0.2f);
+    }
+
+    /// <summary>
+    /// 타겟이 DetectionRange 내에 있으면 무기를 해당 방향으로 조준
+    /// </summary>
+    private void UpdateWeaponAim()
+    {
+        if (weaponController == null) return;
+
+        // 현재 추적 중인 타겟이 있으면 그 방향으로
+        if (trackingTarget != null)
+        {
+            float distance = Vector2.Distance(transform.position, trackingTarget.position);
+            if (distance <= detectionRange)
+            {
+                Vector2 direction = (trackingTarget.position - transform.position).normalized;
+                weaponController.SetAimDirection(direction);
+                return;
+            }
+        }
+
+        // 타겟이 없으면 이동 방향으로
+        if (NetworkedHeading.sqrMagnitude > 0.01f)
+        {
+            weaponController.SetAimDirection(NetworkedHeading);
+        }
     }
 
     private void OnDrawGizmosSelected()
@@ -344,7 +377,7 @@ public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
         }
         public override void EnterState()
         {
-            //enemy.spriteAnimator.Play("Stagger");
+            enemy.spriteAnimator.SetTrigger("Hurt");
         }
         public override void UpdateState()
         {

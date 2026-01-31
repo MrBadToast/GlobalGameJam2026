@@ -33,12 +33,14 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     [Networked] public float NetworkedHealth { get; set; }
 
     [Header("Expression")]
-    [SerializeField] private ExpressionType expression;
+    [Networked, OnChangedRender(nameof(OnExpressionChangedNetwork))]
+    public int NetworkedExpression { get; set; }
+    [SerializeField] private AnimatorOverrideController[] expressionAnimators = new AnimatorOverrideController[4];
 
     // IEntity 속성
     public float MaxHealth => maxHealth;
     public float CurrentHealth => NetworkedHealth;
-    public ExpressionType Expression => expression;
+    public ExpressionType Expression => (ExpressionType)NetworkedExpression;
     [Networked] public NetworkBool NetworkedIsDead { get; set; }
     public bool IsDead => NetworkedIsDead;
     public Animator Animator => animator;
@@ -124,10 +126,10 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     public NetworkArray<float> BonusAttackSpeedArray => default;
 
     // 현재 표정의 보너스 스탯 (편의 접근자)
-    public float BonusAttack => BonusAttackArray[(int)expression];
-    public float BonusDamageTaken => BonusDamageTakenArray[(int)expression];
-    public float BonusMoveSpeed => BonusMoveSpeedArray[(int)expression];
-    public float BonusAttackSpeed => BonusAttackSpeedArray[(int)expression];
+    public float BonusAttack => BonusAttackArray[NetworkedExpression];
+    public float BonusDamageTaken => BonusDamageTakenArray[NetworkedExpression];
+    public float BonusMoveSpeed => BonusMoveSpeedArray[NetworkedExpression];
+    public float BonusAttackSpeed => BonusAttackSpeedArray[NetworkedExpression];
 
     // 인스펙터에서 확인용 (읽기 전용)
     [Header("Debug - Current Expression Bonus Stats")]
@@ -143,13 +145,13 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
 
     private void UpdateDebugStats()
     {
-        int idx = (int)expression;
+        int idx = NetworkedExpression;
         debug_BonusAttack = BonusAttackArray[idx];
         debug_BonusDamageTaken = BonusDamageTakenArray[idx];
         debug_BonusMoveSpeed = BonusMoveSpeedArray[idx];
         debug_BonusAttackSpeed = BonusAttackSpeedArray[idx];
 
-        Debug.Log($"[Stats Changed] Expression: {expression}, ATK: {debug_BonusAttack}, DMG: {debug_BonusDamageTaken}, SPD: {debug_BonusMoveSpeed}, ASPD: {debug_BonusAttackSpeed}");
+        Debug.Log($"[Stats Changed] Expression: {Expression}, ATK: {debug_BonusAttack}, DMG: {debug_BonusDamageTaken}, SPD: {debug_BonusMoveSpeed}, ASPD: {debug_BonusAttackSpeed}");
     }
 
     // IEntity용 래퍼
@@ -375,7 +377,7 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
             if (inputData.isAttackPressed)
             {
                 // 현재 표정에 따른 공격 타입 확인
-                AttackRangeType attackType = ExpressionData.GetAttackRange(expression);
+                AttackRangeType attackType = ExpressionData.GetAttackRange(Expression);
 
                 if (attackType == AttackRangeType.Melee)
                 {
@@ -397,7 +399,7 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     // ========== [근접 공격 로직] ==========
     private void ProcessMeleeAttack(Vector2 direction)
     {
-        float cooldown = attackCooldown / ExpressionData.GetAttackSpeedMultiplier(expression, BonusStats);
+        float cooldown = attackCooldown / ExpressionData.GetAttackSpeedMultiplier(Expression, BonusStats);
         if (Time.time < lastAttackTime + cooldown) return;
         lastAttackTime = Time.time;
 
@@ -425,7 +427,7 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     // ========== [원거리 공격 로직] ==========
     private void ProcessRangedAttack(Vector2 direction)
     {
-        float cooldown = attackCooldown / ExpressionData.GetAttackSpeedMultiplier(expression, BonusStats);
+        float cooldown = attackCooldown / ExpressionData.GetAttackSpeedMultiplier(Expression, BonusStats);
         if (Time.time < lastAttackTime + cooldown) return;
         lastAttackTime = Time.time;
 
@@ -529,11 +531,43 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
         if (index < 0 || index >= System.Enum.GetValues(typeof(ExpressionType)).Length)
             return;
 
-        expression = (ExpressionType)index;
-        OnExpressionChanged?.Invoke(index);
+        // 서버에 표정 변경 요청
+        if (Object.HasStateAuthority)
+        {
+            NetworkedExpression = index;
+        }
+        else if (Object.HasInputAuthority)
+        {
+            RPC_SetExpression(index);
+        }
+    }
 
-        // 표정 변경 시 디버그 스탯 업데이트
-        UpdateDebugStats();
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    private void RPC_SetExpression(int index, RpcInfo info = default)
+    {
+        if (index < 0 || index >= 4) return;
+        NetworkedExpression = index;
+    }
+
+    /// <summary>
+    /// 표정 변경 시 모든 클라이언트에서 호출됨
+    /// </summary>
+    private void OnExpressionChangedNetwork()
+    {
+        int index = NetworkedExpression;
+
+        // 애니메이션 오버라이드 컨트롤러 변경
+        if (animator != null && expressionAnimators != null && index < expressionAnimators.Length && expressionAnimators[index] != null)
+        {
+            animator.runtimeAnimatorController = expressionAnimators[index];
+        }
+
+        // 로컬 플레이어인 경우 UI 이벤트 및 디버그 스탯 업데이트
+        if (Object.HasInputAuthority)
+        {
+            OnExpressionChanged?.Invoke(index);
+            UpdateDebugStats();
+        }
     }
 
     /// <summary>
@@ -753,7 +787,7 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
 
         // 공격 타입에 따른 범위 표시
         Vector2 direction = (mouseWorldPosition - (Vector2)transform.position).normalized;
-        AttackRangeType attackType = ExpressionData.GetAttackRange(expression);
+        AttackRangeType attackType = ExpressionData.GetAttackRange(Expression);
 
         if (attackType == AttackRangeType.Melee)
         {

@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: RageRightRage
+  m_Name: RageIdleDown
   serializedVersion: 7
   m_Legacy: 0
   m_Compressed: 0
@@ -21,11 +21,11 @@ AnimationClip:
   - serializedVersion: 2
     curve:
     - time: 0
-      value: {fileID: 1428333142238958961, guid: 405ee77be68299746a8bae4586beccf8, type: 3}
+      value: {fileID: -9000896007711290354, guid: e7ed1d8fcc89f2348b30281d417c8a4f, type: 3}
     - time: 0.41666666
-      value: {fileID: -6365249483504160577, guid: f7aab7fdecafb8142be93ea1d26c05eb, type: 3}
+      value: {fileID: -8171374509087222253, guid: e2ba57b575d947a4e8d8a12b7018c75d, type: 3}
     - time: 0.8333333
-      value: {fileID: 1428333142238958961, guid: 405ee77be68299746a8bae4586beccf8, type: 3}
+      value: {fileID: -9000896007711290354, guid: e7ed1d8fcc89f2348b30281d417c8a4f, type: 3}
     attribute: m_Sprite
     path: 
     classID: 212
@@ -48,9 +48,9 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     pptrCurveMapping:
-    - {fileID: 1428333142238958961, guid: 405ee77be68299746a8bae4586beccf8, type: 3}
-    - {fileID: -6365249483504160577, guid: f7aab7fdecafb8142be93ea1d26c05eb, type: 3}
-    - {fileID: 1428333142238958961, guid: 405ee77be68299746a8bae4586beccf8, type: 3}
+    - {fileID: -9000896007711290354, guid: e7ed1d8fcc89f2348b30281d417c8a4f, type: 3}
+    - {fileID: -8171374509087222253, guid: e2ba57b575d947a4e8d8a12b7018c75d, type: 3}
+    - {fileID: -9000896007711290354, guid: e7ed1d8fcc89f2348b30281d417c8a4f, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}

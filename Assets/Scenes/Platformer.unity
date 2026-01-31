@@ -46284,17 +46284,60 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
   spawnOnStart: 1
   spawnSegments:
-  - rid: 3059453383213056125
+  - rid: 1769118196237075048
+  - rid: 1769118196237075052
+  - rid: 1769118196237075054
+  - rid: 1769118196237075057
+  - rid: 1769118196237075058
+  - rid: 1769118196237075065
   references:
     version: 2
     RefIds:
-    - rid: 3059453383213056125
-      type: {class: EnemySpawner/SpawnEnemy, ns: , asm: Assembly-CSharp}
+    - rid: 1769118196237075048
+      type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
       data:
         enemyPrefab: {fileID: 5803785839536338772, guid: df2ef8dc928c2984895f8e3d587ec627, type: 3}
         spawnPoint: {fileID: 654869625}
         spawnRange: 1
-        spawnQuantity: 3
+        interaval: 4
+        repeatCount: 10
+    - rid: 1769118196237075052
+      type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
+      data:
+        enemyPrefab: {fileID: 5803785839536338772, guid: df2ef8dc928c2984895f8e3d587ec627, type: 3}
+        spawnPoint: {fileID: 1830394028}
+        spawnRange: 1
+        interaval: 4
+        repeatCount: 10
+    - rid: 1769118196237075054
+      type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
+      data:
+        enemyPrefab: {fileID: 5803785839536338772, guid: df2ef8dc928c2984895f8e3d587ec627, type: 3}
+        spawnPoint: {fileID: 1549945697}
+        spawnRange: 1
+        interaval: 4
+        repeatCount: 10
+    - rid: 1769118196237075057
+      type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
+      data:
+        enemyPrefab: {fileID: 5803785839536338772, guid: df2ef8dc928c2984895f8e3d587ec627, type: 3}
+        spawnPoint: {fileID: 1370635971}
+        spawnRange: 1
+        interaval: 4
+        repeatCount: 10
+    - rid: 1769118196237075058
+      type: {class: EnemySpawner/Wait, ns: , asm: Assembly-CSharp}
+      data:
+        waitTime: 120
+        incrementWave: 1
+    - rid: 1769118196237075065
+      type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
+      data:
+        enemyPrefab: {fileID: 5803785839536338772, guid: df2ef8dc928c2984895f8e3d587ec627, type: 3}
+        spawnPoint: {fileID: 654869625}
+        spawnRange: 1
+        interaval: 1
+        repeatCount: 5
 --- !u!58 &522009131
 CircleCollider2D:
   m_ObjectHideFlags: 0

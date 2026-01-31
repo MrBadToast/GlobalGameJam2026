@@ -74,13 +74,23 @@ public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
     [SerializeField] private string debug_currentMovement;
 
     Rigidbody2D rbody;
+
+    // =========== Enemy계수설정 =============
+    public void Setproperty(int ratio)
+    {
+        float newRatio = ratio == 1 ? 1 : ratio * 0.15f;
+        currentHealth = maxHealth + maxHealth * newRatio;
+        CurrentHealth = currentHealth;
+        maxHealth = currentHealth;
+
+        damage += damage * newRatio;
+    }
+
     public override void Spawned()
     {
         lastAttackTimer = Time.time;
         lastSeekTimer = Time.time;
 
-        currentHealth = maxHealth;
-        CurrentHealth = maxHealth;
         rbody = GetComponent<Rigidbody2D>();
 
         // 무기 타입 초기화 (가면 타입과 1:1 대응)

@@ -10,11 +10,11 @@ public class SlashEffect : MonoBehaviour
         anim = GetComponent<Animator>();
     }
 
-    void Start()
+    private void OnEnable()
     {
         int randomIndex = Random.Range(0, 6);
 
-        anim.Play("Blood_" + randomIndex);
+        anim.Play("Slash_" + randomIndex);
 
         Invoke(nameof(SelfDestroy), destroyDelay);
     }

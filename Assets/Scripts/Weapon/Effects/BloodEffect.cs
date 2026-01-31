@@ -11,7 +11,7 @@ public class BloodEffect : MonoBehaviour
         anim = GetComponent<Animator>();
     }
 
-    void Start()
+    private void OnEnable()
     {
         int randomIndex = Random.Range(0, 4);
 

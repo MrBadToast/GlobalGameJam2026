@@ -517,7 +517,7 @@ GameObject:
   - component: {fileID: 841305924162618262}
   - component: {fileID: 557590876542669795}
   m_Layer: 29
-  m_Name: Enemy_White
+  m_Name: Enemy_Red
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -555,16 +555,16 @@ MonoBehaviour:
   _CurrentHealth: 0
   _IsDead: 0
   _NetworkedHeading: {x: 0, y: 0}
-  isProjectileAttack: 1
+  isProjectileAttack: 0
   weaponType: 0
   expressionType: 0
   maxHealth: 100
-  moveSpeed: 2
-  damage: 10
+  moveSpeed: 5
+  damage: 20
   defense: 0
   attackDuration: 0.6
   detectionRange: 15
-  attackRange: 7
+  attackRange: 1
   attackCooldown: {x: 1.2, y: 5}
   seekInterval: {x: 0.5, y: 1.225}
   hurtCooldown: 0.3
@@ -651,7 +651,7 @@ Animator:
   m_GameObject: {fileID: 5803785839536338772}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: b43c459e6acea134aaf9be8621131d02, type: 2}
+  m_Controller: {fileID: 22100000, guid: 71d6f330fcd4fe642a9eec583eed0590, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -711,7 +711,7 @@ MonoBehaviour:
   m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
-  SortKey: 134556823
+  SortKey: 3838726532
   ObjectInterest: 1
   Flags: 262145
   NestedObjects: []
@@ -785,7 +785,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 56eb769ca4557ea41829913161a4391a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 075928a6a0c45cc47bad2b39b95590f6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

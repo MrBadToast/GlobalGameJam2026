@@ -694,6 +694,10 @@ MonoBehaviour:
   attackHitbox: {fileID: 8018695944962425637}
   damageTextPrefab: {fileID: 0}
   projectilePrefab: {fileID: 0}
+  moneyPrefab:
+    RawGuidValue: 00000000000000000000000000000000
+  dropMoneyMin: 5
+  dropMoneyMax: 15
   trackingTarget: {fileID: 0}
   currentHealth: 0
   lastAttackTimer: 0
@@ -803,6 +807,7 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
+  - {fileID: 3166413810301351272}
   - {fileID: 841305924162618262}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &841305924162618262

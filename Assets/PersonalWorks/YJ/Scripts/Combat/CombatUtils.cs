@@ -10,7 +10,7 @@ public static class CombatUtils
     private static int? _monsterLayer;
 
     public static int PlayerLayer => _playerLayer ??= LayerMask.NameToLayer("Player");
-    public static int MonsterLayer => _monsterLayer ??= LayerMask.NameToLayer("Monster");
+    public static int MonsterLayer => _monsterLayer ??= LayerMask.NameToLayer("Enemy");
     public static LayerMask PlayerMask => 1 << PlayerLayer;
     public static LayerMask MonsterMask => 1 << MonsterLayer;
 

@@ -1,3 +1,4 @@
+using Fusion;
 using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
@@ -5,24 +6,37 @@ using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
+public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
 {
-    [Title("ï¿½ï¿½ï¿½ï¿½")]
+    // Å¬¶óÀÌ¾ðÆ®¿Í °øÀ¯ÇØ¾ß ÇÏ´Â µ¥ÀÌÅÍ
+    [Networked] public float CurrentHealth { get; set; }
+    [Networked] public bool IsDead { get; set; }
+
+    [Networked]
+    [OnChangedRender(nameof(OnHeadingChanged))] // °ªÀÌ ¹Ù²î¸é OnHeadingChanged ½ÇÇà
+    public Vector2 NetworkedHeading { get; set; }
+
+
+    [Title("Properties")]
+    [SerializeField] private bool isProjectileAttack = false;
     [SerializeField] private WeaponType weaponType = WeaponType.Weapon1;
     [SerializeField] private ExpressionType expressionType = ExpressionType.Neutral;
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float moveSpeed = 2f;
+    [SerializeField] private float damage = 10;
+    [SerializeField] private float defense = 0f;
+
+    [Title("Settings")]
+    [SerializeField] private float attackDuration = 0.7f;
     [SerializeField] private float detectionRange = 8f;
     [SerializeField] private float attackRange = 1.5f;
     [SerializeField, MinMaxSlider(0.1f,10f)] private Vector2 attackCooldown = new Vector2(1.2f, 5f);
     [SerializeField, MinMaxSlider(0.1f,10f)] private Vector2 seekInterval = new Vector2(0.5f, 3f);
-    [SerializeField] private float attackDuration = 0.6f;
-    [SerializeField] private int damage = 10;
     [SerializeField] private float hurtCooldown = 0.3f;
     [SerializeField] private LayerMask attackTarget;
     [SerializeField] private AnimationCurve staggerOffCurve;
-
-    [Title("ï¿½ï¿½ï¿½ï¿½")]
+    [Title("Audios")]
+    [SerializeField] private AudioSource aud_Fire;
     [SerializeField] private AudioSource aud_Swing;
     [SerializeField] private AudioSource aud_Hurt;
     [SerializeField] private AudioSource aud_Death;
@@ -31,15 +45,18 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
     [SerializeField, Required] private Animator spriteAnimator;
     [SerializeField, Required] private BoxCollider2D attackHitbox;
 
+    [SerializeField, Required] private GameObject damageTextPrefab;
+    [SerializeField] private GameObject projectilePrefab;
+
     [Title("Debug")]
-    [SerializeField,ReadOnly] private Transform trackingTarget;
+    [SerializeField] private Transform trackingTarget;
 
-    [SerializeField, ReadOnly] private float currentHealth = 0f;
+    [SerializeField] private float currentHealth = 0f;
 
-    [SerializeField, ReadOnly] private float lastAttackTimer = 0f;
-    [SerializeField, ReadOnly] private float lastSeekTimer = 0f;
-    [SerializeField, ReadOnly] private float nextSeekTime = 0f;
-    [SerializeField, ReadOnly] private float hurtTimer = 0f;
+    [SerializeField] private float lastAttackTimer = 0f;
+    [SerializeField] private float lastSeekTimer = 0f;
+    [SerializeField] private float nextSeekTime = 0f;
+    [SerializeField] private float hurtTimer = 0f;
 
     private float nextAttackTime = 0f;
 
@@ -50,53 +67,71 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
     private EntityStats bonusStats;
 
     MovementState_Base currentMovementState;
-    [SerializeField, ReadOnly] private string debug_currentMovement;
+    [SerializeField] private string debug_currentMovement;
 
     Rigidbody2D rbody;
-    private void Awake()
+    public override void Spawned()
     {
+        lastAttackTimer = Time.time;
+        lastSeekTimer = Time.time;
+
+        currentHealth = maxHealth;
+        CurrentHealth = maxHealth;
         rbody = GetComponent<Rigidbody2D>();
+
+        ChangeMovementState(new Movement_Roam(this));
     }
 
     #region Interface Implementation
 
     Animator IEntity.Animator => spriteAnimator;
     public float MaxHealth => maxHealth;
-    public float CurrentHealth => currentHealth;
+    //public float CurrentHealth => currentHealth;
     public ExpressionType Expression => expressionType;
     public WeaponType Weapon => weaponType;
-    public bool IsDead => isDead;
+    //public bool IsDead => isDead;
 
     public GameObject GameObject => this.GameObject;
 
     public EntityStats BonusStats => bonusStats;
-
+    
     public void TakeDamage(float damage, Vector2 direction)
     {
+        if (Object == null || !Object.IsValid) return; // ³×Æ®¿öÅ© °´Ã¼°¡ À¯È¿ÇÏÁö ¾ÊÀ¸¸é Áß´Ü
+        if (IsDead) return;
+        if (IsDead)
+            return;
+
+        float effectiveDamage = damage - defense;
+        if (effectiveDamage < 0f)
+            effectiveDamage = 0f;
+
+        /*GameObject dmgTextObj = Instantiate(damageTextPrefab, transform.position + Vector3.up * 0.5f, Quaternion.identity);
+        dmgTextObj.GetComponent<DamageText>().SetText(effectiveDamage.ToString("F0"));*/
+
         OnHurt(direction, damage);
     }
 
     #endregion
 
     #region Unity Events
-    private void Start()
+    private void OnHeadingChanged()
     {
-        lastAttackTimer = Time.time;
-        lastSeekTimer = Time.time;
-
-        currentHealth = maxHealth;
-
-        ChangeMovementState(new Movement_Roam(this));
+        if (spriteAnimator != null)
+        {
+            spriteAnimator.SetFloat("Heading_X", NetworkedHeading.x);
+            spriteAnimator.SetFloat("Heading_Y", NetworkedHeading.y);
+        }
     }
 
-    private void Update()
+    public override void FixedUpdateNetwork()
     {
+        // È£½ºÆ®°¡ ¾Æ´Ï¶ó¸é ¾Æ·¡ ·ÎÁ÷À» ½ÇÇàÇÏÁö ¾ÊÀ½
+        if (!Object.HasStateAuthority || IsDead) return;
         
-        currentMovementState.UpdateState();
-    }
+        if (currentMovementState != null)
+            currentMovementState.UpdateState();
 
-    private void FixedUpdate()
-    {
         rbody.linearVelocity = Vector2.Lerp(rbody.linearVelocity, Vector2.zero, 0.2f);
     }
 
@@ -160,7 +195,7 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
 
     class Movement_Roam : MovementState_Base
     {
-        Vector2 roamDirection;
+        //Vector2 roamDirection;
 
         public Movement_Roam(EnemyBehavior_Generic enemy) : base(enemy)
         {
@@ -169,17 +204,14 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
 
         public override void EnterState()
         {
-            roamDirection = Random.insideUnitCircle.normalized;
+            enemy.NetworkedHeading = Random.insideUnitCircle.normalized;
             enemy.spriteAnimator.Play("Move");
             enemy.nextSeekTime = Random.Range(enemy.seekInterval.x, enemy.seekInterval.y);
         }
 
         public override void UpdateState()
         {
-            enemy.rbody.linearVelocity = roamDirection * enemy.moveSpeed;
-
-            enemy.spriteAnimator.SetFloat("Heading_X", roamDirection.x);
-            enemy.spriteAnimator.SetFloat("Heading_Y", roamDirection.y);
+            enemy.rbody.linearVelocity = enemy.NetworkedHeading * enemy.moveSpeed;
 
             if (Time.time >= enemy.nextSeekTime + enemy.lastSeekTimer)
             {
@@ -235,7 +267,6 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
 
         private IEnumerator Cor_Attack()
         {
-            enemy.aud_Swing.Play();
             enemy.HeadForTarget(enemy.trackingTarget.position);
             enemy.PerformAttack();
 
@@ -290,7 +321,7 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
         }
         public override void EnterState()
         {
-            enemy.spriteAnimator.Play("Stagger");
+            //enemy.spriteAnimator.Play("Stagger");
         }
         public override void UpdateState()
         {
@@ -367,11 +398,15 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
 
     private bool SeekTarget(float range)
     {
-        RaycastHit2D target = Physics2D.CircleCast(transform.position, range, Vector2.up, 0f, attackTarget); // Physics2D.OverlapCircle(transform.position, range, attackTarget);
+        RaycastHit2D[] targets = Physics2D.CircleCastAll(transform.position, range, Vector2.up, 0f, attackTarget); // Physics2D.OverlapCircle(transform.position, range, attackTarget);
 
-        if(target)
+        if (targets.Length <= 0) return false;
+
+        RaycastHit2D nearest = targets[0];
+
+        if (nearest)
         {
-            trackingTarget = target.transform;
+            trackingTarget = nearest.transform;
             return true;
         }
         else
@@ -383,10 +418,10 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
 
     private void HeadForTarget(Vector3 target)
     {
-        Vector2 direction = (target - transform.position).normalized;
+        NetworkedHeading = (target - transform.position).normalized;
 
-        spriteAnimator.SetFloat("Heading_X", direction.x);
-        spriteAnimator.SetFloat("Heading_Y", direction.y);
+        spriteAnimator.SetFloat("Heading_X", NetworkedHeading.x);
+        spriteAnimator.SetFloat("Heading_Y", NetworkedHeading.y);
     }
 
     private void DecideForState(EnemyBehavior_Generic enemyInstance)
@@ -407,18 +442,34 @@ public class EnemyBehavior_Generic : SerializedMonoBehaviour, IEntity
 
     private void PerformAttack()
     {
-        Physics2D.OverlapBoxAll(attackHitbox.bounds.center, attackHitbox.bounds.size, 0f, attackTarget)
-            .ToList()
-            .ForEach(target =>
-            {
-                IEntity entity = target.GetComponent<IEntity>();
-                entity?.TakeDamage(damage, (target.transform.position - transform.position).normalized);
-            });
+        if(trackingTarget == null)
+            return;
+
+        if (isProjectileAttack)
+        {
+            aud_Fire.Play();
+
+            if (projectilePrefab == null)
+                return;
+
+            NetworkObject projectileObj = Runner.Spawn(projectilePrefab, attackHitbox.bounds.center, Quaternion.identity);
+            projectileObj.transform.right = (trackingTarget.position - transform.position).normalized;
+            return;
+        }
+        else
+        {
+            aud_Swing.Play();
+
+            Physics2D.OverlapBoxAll(attackHitbox.bounds.center, attackHitbox.bounds.size, 0f, attackTarget)
+                .ToList()
+                .ForEach(target =>
+                {
+                    IEntity entity = target.GetComponent<IEntity>();
+                    entity?.TakeDamage(damage, (target.transform.position - transform.position).normalized);
+                });
+        }
     }
 
     #endregion
-
-
-
 
 }

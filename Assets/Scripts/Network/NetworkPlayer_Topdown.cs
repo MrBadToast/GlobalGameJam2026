@@ -2,14 +2,14 @@ using Fusion;
 using UnityEngine;
 using static Unity.Collections.Unicode;
 
-public class CharacterMovementHandler : NetworkBehaviour
+public class NetworkPlayer_Topdown : NetworkBehaviour
 {
-    private Rigidbody2D _rb;
-    [SerializeField] private float _moveSpeed = 5f;
+    private Rigidbody2D rb;
+    [SerializeField] private float moveSpeed = 5f;
 
-    private void Awake()
+    public void Awake()
     {
-        _rb = GetComponent<Rigidbody2D>();
+        rb = GetComponent<Rigidbody2D>();
     }
 
     public override void FixedUpdateNetwork()
@@ -22,11 +22,7 @@ public class CharacterMovementHandler : NetworkBehaviour
 
             // 2. Transform 위치 직접 수정
             // Runner.DeltaTime을 곱해 네트워크 틱에 맞게 이동 거리를 계산합니다.
-            transform.position += moveVector * _moveSpeed * Runner.DeltaTime;
+            transform.position += moveVector * moveSpeed * Runner.DeltaTime;
         }
     }
 }
-/*public struct NetworkInputData : INetworkInput
-{
-    public Vector2 movementInput;
-}*/

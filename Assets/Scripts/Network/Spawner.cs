@@ -7,8 +7,8 @@ using UnityEngine;
 
 public class Spawner : MonoBehaviour, INetworkRunnerCallbacks
 {
-    public NetworkPlayer playerPrefab;
-    public CharacterInputHandler characterInputHandler;
+    public Player_Topdown playerPrefab;
+    public Player_Topdown characterInputHandler;
 
     private void Awake()
     {
@@ -27,8 +27,10 @@ public class Spawner : MonoBehaviour, INetworkRunnerCallbacks
 
         if (runner.IsServer)
         {
-            Debug.Log("OnPlayerJoined we are server, Sample player");
-            runner.Spawn(playerPrefab, Utils.GetRandomSpawnPoint(), Quaternion.identity, player);
+            var spawnedObj = runner.Spawn(playerPrefab, Utils.GetRandomSpawnPoint(), Quaternion.identity, player);
+
+            if (spawnedObj != null)
+                Debug.Log($"스폰 완료! 오브젝트 이름: {spawnedObj.name}, 위치: {spawnedObj.transform.position}");
         }
         else Debug.Log("OnPlayerJoined");
     }
@@ -42,8 +44,8 @@ public class Spawner : MonoBehaviour, INetworkRunnerCallbacks
     // 3. 입력값을 수집할 때 (매 프레임 발생하므로 확인 후 주석 처리 권장)
     public void OnInput(NetworkRunner runner, NetworkInput input)
     {
-        if(characterInputHandler == null && NetworkPlayer.Local != null)
-            characterInputHandler = NetworkPlayer.Local.GetComponent<CharacterInputHandler>();
+        if(characterInputHandler == null && Player_Topdown.Local != null)
+            characterInputHandler = Player_Topdown.Local.GetComponent<Player_Topdown>();
 
         if (characterInputHandler != null)
             input.Set(characterInputHandler.GetNetworkInput());

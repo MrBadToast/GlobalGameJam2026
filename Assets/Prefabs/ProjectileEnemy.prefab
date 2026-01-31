@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8060894655489208105}
   - component: {fileID: 8741141948520440591}
-  m_Layer: 29
+  m_Layer: 0
   m_Name: AttackBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -774,6 +774,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyBehavior_Generic
   _CurrentHealth: 0
   _IsDead: 0
+  _NetworkedHeading: {x: 0, y: 0}
   isProjectileAttack: 1
   weaponType: 0
   expressionType: 0
@@ -821,7 +822,7 @@ MonoBehaviour:
   spriteAnimator: {fileID: 1275883655539085124}
   attackHitbox: {fileID: 8741141948520440591}
   damageTextPrefab: {fileID: 5066689262041594168, guid: f0e987a57f08625418ea7cb139ab6fd7, type: 3}
-  projectilePrefab: {fileID: 1288051138822001628, guid: d8a29084ec6e00348a327bd43c657cc0, type: 3}
+  projectilePrefab: {fileID: 1288051138822001628, guid: 3bff9591dbbca0a4585acdce5f57f728, type: 3}
   trackingTarget: {fileID: 0}
   currentHealth: 0
   lastAttackTimer: 0
@@ -926,7 +927,7 @@ MonoBehaviour:
   m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
-  SortKey: 2134587230
+  SortKey: 952039862
   ObjectInterest: 1
   Flags: 262145
   NestedObjects: []

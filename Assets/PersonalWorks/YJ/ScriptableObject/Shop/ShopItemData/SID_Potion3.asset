@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: SID_Potion3
   m_EditorClassIdentifier: Assembly-CSharp::ShopItemData
   itemData: {fileID: 11400000, guid: 077a56e36ab336a418b68a45feb8ab8f, type: 2}
-  price: 100
+  price: 500
   category: 0

@@ -1,122 +1,12 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 상점 UI - 카테고리별 아이템 표시
+/// 상점 UI - 미리 배치된 12개 슬롯 관리
 /// </summary>
 public class ShopUI : MonoBehaviour
 {
-    [Header("Category Roots")]
-    [SerializeField] private Transform potionRoot;
-    [SerializeField] private Transform whiteRoot;
-    [SerializeField] private Transform blueRoot;
-    [SerializeField] private Transform yellowRoot;
-    [SerializeField] private Transform redRoot;
-
-    [Header("Prefab")]
-    [SerializeField] private GameObject shopSlotPrefab;
-
-    [Header("Shop Data")]
-    [SerializeField] private ShopDatabase shopDatabase;
-
-    private List<ShopSlot> spawnedSlots = new List<ShopSlot>();
-
-    private void Start()
-    {
-        InitializeShop();
-    }
-
-    /// <summary>
-    /// 상점 초기화 - 카테고리별로 슬롯 생성
-    /// </summary>
-    public void InitializeShop()
-    {
-        ClearShop();
-
-        if (shopDatabase == null)
-        {
-            Debug.LogWarning("ShopDatabase가 설정되지 않았습니다.");
-            return;
-        }
-
-        foreach (var shopItem in shopDatabase.AllItems)
-        {
-            if (shopItem == null) continue;
-
-            Transform root = GetRootByCategory(shopItem.category);
-            if (root == null) continue;
-
-            CreateSlot(shopItem, root);
-        }
-    }
-
-    /// <summary>
-    /// 상점 슬롯 모두 제거
-    /// </summary>
-    public void ClearShop()
-    {
-        foreach (var slot in spawnedSlots)
-        {
-            if (slot != null)
-            {
-                Destroy(slot.gameObject);
-            }
-        }
-        spawnedSlots.Clear();
-    }
-
-    /// <summary>
-    /// 슬롯 생성
-    /// </summary>
-    private void CreateSlot(ShopItemData shopItem, Transform root)
-    {
-        if (shopSlotPrefab == null) return;
-
-        GameObject slotObj = Instantiate(shopSlotPrefab, root);
-        ShopSlot slot = slotObj.GetComponent<ShopSlot>();
-
-        if (slot != null)
-        {
-            slot.Initialize(shopItem);
-            spawnedSlots.Add(slot);
-        }
-    }
-
-    /// <summary>
-    /// 카테고리에 맞는 루트 반환
-    /// </summary>
-    private Transform GetRootByCategory(ShopCategory category)
-    {
-        switch (category)
-        {
-            case ShopCategory.Potion:
-                return potionRoot;
-            case ShopCategory.BuffWhite:
-                return whiteRoot;
-            case ShopCategory.BuffBlue:
-                return blueRoot;
-            case ShopCategory.BuffYellow:
-                return yellowRoot;
-            case ShopCategory.BuffRed:
-                return redRoot;
-            default:
-                return null;
-        }
-    }
-
-    /// <summary>
-    /// 런타임에 상점 슬롯 추가
-    /// </summary>
-    public void AddShopItem(ShopItemData shopItem)
-    {
-        if (shopItem == null) return;
-
-        Transform root = GetRootByCategory(shopItem.category);
-        if (root != null)
-        {
-            CreateSlot(shopItem, root);
-        }
-    }
+    [Header("Pre-placed Slots (12개)")]
+    [SerializeField] private ShopSlot[] slots = new ShopSlot[12];
 
     private void Update()
     {
@@ -154,4 +44,29 @@ public class ShopUI : MonoBehaviour
             Player_Topdown.Local.SetInputEnabled(true);
         }
     }
+
+    /// <summary>
+    /// 특정 슬롯의 아이템 변경 (런타임용)
+    /// </summary>
+    public void SetSlotItem(int slotIndex, ShopItemData itemData)
+    {
+        if (slotIndex < 0 || slotIndex >= slots.Length) return;
+        if (slots[slotIndex] == null) return;
+
+        slots[slotIndex].SetItemData(itemData);
+    }
+
+    /// <summary>
+    /// 슬롯 가져오기
+    /// </summary>
+    public ShopSlot GetSlot(int index)
+    {
+        if (index < 0 || index >= slots.Length) return null;
+        return slots[index];
+    }
+
+    /// <summary>
+    /// 전체 슬롯 수
+    /// </summary>
+    public int SlotCount => slots.Length;
 }

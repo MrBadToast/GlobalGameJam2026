@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 423a98055e2dbda409caf99da26ec079, type: 3}
   m_Name: ID_YellowBuff3
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: "\uC610\uB85C \uBC84\uD5043"
-  description: "\uC5D8\uB85C \uBC84\uD504 3\uB2E8\uACC4"
-  icon: {fileID: 21300000, guid: 2f2e107794ce8944196d4392c9811b32, type: 3}
+  itemName: "\uAC15\uD55C \uB3C4\uD30C\uBBFC"
+  description: "\uAE30\uC068 \uC0C1\uD0DC\uC5D0\uC11C\uC758 \uC774\uB3D9/\uACF5\uACA9
+    \uC18D\uB3C4\uAC00 2% \uC99D\uAC00\uD569\uB2C8\uB2E4."
+  icon: {fileID: 5592649785648621845, guid: e134cba69f247704789ae75af8e1d289, type: 3}
   itemType: 4
   category: 1
   attackModifier: 0

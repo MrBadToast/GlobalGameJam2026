@@ -10,11 +10,11 @@ public class MeleeEffect : MonoBehaviour
         anim = GetComponent<Animator>();
     }
 
-    void Start()
+    private void OnEnable()
     {
         int randomIndex = Random.Range(0, 4);
 
-        anim.Play("Blood_" + randomIndex);
+        anim.Play("Melee_" + randomIndex);
 
         Invoke(nameof(SelfDestroy), destroyDelay);
     }

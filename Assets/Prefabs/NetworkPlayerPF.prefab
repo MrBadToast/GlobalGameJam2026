@@ -129,6 +129,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponController
   spriteRenderer: {fileID: 4595667973931448661}
   animator: {fileID: 8677940007277286115}
+  weaponEffects:
+  - {fileID: 7861529962886012775, guid: 2763cd500afcbfb439b92afe054e8dde, type: 3}
+  - {fileID: 7861529962886012775, guid: 2763cd500afcbfb439b92afe054e8dde, type: 3}
+  - {fileID: 7757095502146494451, guid: 08232fd99f70cb746873a8ab3ebe7f45, type: 3}
+  - {fileID: 890510731200726621, guid: be0d650984e0136409fc34c9f56fbae7, type: 3}
   weaponOverrideControllers:
   - {fileID: 22100000, guid: d574b43df39805c4181ddad7838eff0a, type: 2}
   - {fileID: 22100000, guid: 1db67fe81d7910646958b4121035537a, type: 2}
@@ -136,6 +141,7 @@ MonoBehaviour:
   - {fileID: 22100000, guid: b36c2d09a575a5f43bf808b5e3402072, type: 2}
   orbitDistance: 0.7
   offset: {x: 0, y: 0}
+  weaponEffect: {fileID: 0}
 --- !u!1 &7078136711671323623
 GameObject:
   m_ObjectHideFlags: 0

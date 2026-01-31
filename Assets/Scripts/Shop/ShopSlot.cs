@@ -82,15 +82,24 @@ public class ShopSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         }
         else if (item.category == ItemCategory.Buff)
         {
-            // 버프 구매
+            // 버프 대상 표정 인덱스 가져오기
+            int expressionIndex = item.itemType.GetExpressionIndex();
+            if (expressionIndex < 0)
+            {
+                Debug.LogError($"잘못된 버프 아이템: {item.itemType}");
+                return;
+            }
+
+            // 버프 구매 (해당 표정에만 적용)
             player.RPC_BuyBuff(
                 shopItemData.price,
+                expressionIndex,
                 item.attackModifier,
                 item.damageTakenModifier,
                 item.moveSpeedModifier,
                 item.attackSpeedModifier
             );
-            Debug.Log($"{item.itemName} 구매 완료!");
+            Debug.Log($"{item.itemName} 구매 완료! (표정: {(ExpressionType)expressionIndex})");
         }
     }
 

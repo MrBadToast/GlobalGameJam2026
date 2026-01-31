@@ -389,13 +389,16 @@ MonoBehaviour:
       Data: 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   damageTextPrefab: {fileID: 0}
   maxHealth: 100
+  _NetworkedHealth: 0
   expression: 0
+  _NetworkedIsDead:
+    _value: 0
   _Money: 0
   _PotionCounts: 
   potionTypes:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 525b0c912fc1a1b409e8ca535e140e42, type: 2}
+  - {fileID: 11400000, guid: 6c6b1f13ec1c4304caa48daf765b6d2b, type: 2}
+  - {fileID: 11400000, guid: 077a56e36ab336a418b68a45feb8ab8f, type: 2}
   moveSpeed: 5
   baseDamage: 10
   meleeAttackRadius: 1.5

@@ -37,6 +37,9 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     public int NetworkedExpression { get; set; }
     [SerializeField] private AnimatorOverrideController[] expressionAnimators = new AnimatorOverrideController[4];
 
+    [Header("Weapon")]
+    [SerializeField] private WeaponController weaponController;
+
     // IEntity 속성
     public float MaxHealth => maxHealth;
     public float CurrentHealth => NetworkedHealth;
@@ -74,6 +77,7 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     [SerializeField] private float attackCooldown = 0.5f;
 
     [Header("Ranged Attack")]
+    [SerializeField] private Transform firePoint;
     [SerializeField] private float rangedAttackRange = 15f;
     [SerializeField] private LineRenderer lineRenderer;
     [SerializeField] private float lineDisplayDuration = 0.1f;
@@ -254,6 +258,13 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
         if (mainCamera != null)
         {
             mouseWorldPosition = mainCamera.ScreenToWorldPoint(UnityEngine.Input.mousePosition);
+
+            // 무기 조준 방향 업데이트
+            if (weaponController != null)
+            {
+                Vector2 aimDir = (mouseWorldPosition - (Vector2)transform.position).normalized;
+                weaponController.SetAimDirection(aimDir);
+            }
         }
 
         if (IsDead || !isInputEnabled)
@@ -433,7 +444,7 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
 
         if (Object.HasStateAuthority)
         {
-            Vector2 origin = (Vector2)transform.position + direction * 0.5f;
+            Vector2 origin = firePoint != null ? (Vector2)firePoint.position : (Vector2)transform.position + direction * 0.5f;
             RaycastHit2D hit = Physics2D.Raycast(origin, direction, rangedAttackRange, CombatUtils.MonsterMask);
 
             float damage = 0;
@@ -452,16 +463,20 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
             }
 
             // 모든 클라이언트에게 시각 효과 재생 요청
-            RPC_PlayShootEffects(damage, targetPos, hitPoint);
+            RPC_PlayShootEffects(origin, damage, targetPos, hitPoint);
         }
     }
 
     // ========== [원거리 공격 이펙트] ==========
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_PlayShootEffects(float damage, Vector3 targetPos, Vector2 endPoint)
+    private void RPC_PlayShootEffects(Vector2 startPoint, float damage, Vector3 targetPos, Vector2 endPoint)
     {
-        // 여기서 사운드 재생 및 LineRenderer 표시만 수행 (데미지 로직 삭제)
-        StartCoroutine(ShowRayLine(transform.position, endPoint));
+        // 무기 공격 애니메이션
+        if (weaponController != null)
+            weaponController.PlayAttack();
+
+        // 사운드 재생 및 LineRenderer 표시
+        StartCoroutine(ShowRayLine(startPoint, endPoint));
         if (damage > 0 && targetPos != Vector3.zero)
         {
             GameObject dmgTextObj = Instantiate(damageTextPrefab, targetPos + Vector3.up * 0.5f, Quaternion.identity);
@@ -473,6 +488,9 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void RPC_PlayMeleeEffects(Vector2 effectPos)
     {
+        // 무기 공격 애니메이션
+        if (weaponController != null)
+            weaponController.PlayAttack();
     }
 
     // ========== IEntity 메서드 ==========
@@ -560,6 +578,12 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
         if (animator != null && expressionAnimators != null && index < expressionAnimators.Length && expressionAnimators[index] != null)
         {
             animator.runtimeAnimatorController = expressionAnimators[index];
+        }
+
+        // 무기 타입도 변경
+        if (weaponController != null)
+        {
+            weaponController.SetWeaponType(index);
         }
 
         // 로컬 플레이어인 경우 UI 이벤트 및 디버그 스탯 업데이트

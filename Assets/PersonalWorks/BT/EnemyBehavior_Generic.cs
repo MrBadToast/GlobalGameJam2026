@@ -44,6 +44,7 @@ public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
     [Title("ChildReferences")]
     [SerializeField, Required] private Animator spriteAnimator;
     [SerializeField, Required] private BoxCollider2D attackHitbox;
+    [SerializeField] private WeaponController weaponController;
 
     [SerializeField, Required] private GameObject damageTextPrefab;
     [SerializeField] private GameObject projectilePrefab;
@@ -81,6 +82,12 @@ public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
         currentHealth = maxHealth;
         CurrentHealth = maxHealth;
         rbody = GetComponent<Rigidbody2D>();
+
+        // 무기 타입 초기화 (가면 타입과 1:1 대응)
+        if (weaponController != null)
+        {
+            weaponController.SetWeaponType((int)expressionType);
+        }
 
         ChangeMovementState(new Movement_Roam(this));
     }
@@ -122,6 +129,12 @@ public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
         {
             spriteAnimator.SetFloat("Heading_X", NetworkedHeading.x);
             spriteAnimator.SetFloat("Heading_Y", NetworkedHeading.y);
+        }
+
+        // 무기 조준 방향 업데이트
+        if (weaponController != null)
+        {
+            weaponController.SetAimDirection(NetworkedHeading);
         }
     }
 
@@ -287,7 +300,6 @@ public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
             enemy.lastAttackTimer = Time.time;
             enemy.nextAttackTime = Random.Range(enemy.attackCooldown.x, enemy.attackCooldown.y);
             attackCor = enemy.StartCoroutine(Cor_Attack());
-
         }
         public override void UpdateState()
         {
@@ -478,6 +490,10 @@ public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
     {
         if(trackingTarget == null)
             return;
+
+        // 무기 공격 애니메이션
+        if (weaponController != null)
+            weaponController.PlayAttack();
 
         if (isProjectileAttack)
         {

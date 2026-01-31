@@ -821,8 +821,12 @@ MonoBehaviour:
   aud_Death: {fileID: 5702448450223231198}
   spriteAnimator: {fileID: 1275883655539085124}
   attackHitbox: {fileID: 8741141948520440591}
-  damageTextPrefab: {fileID: 0}
+  damageTextPrefab: {fileID: 5066689262041594168, guid: ef83c4ef34e0bb244aadff05828d25af, type: 3}
   projectilePrefab: {fileID: 0}
+  moneyPrefab:
+    RawGuidValue: 0132643e3d757d7458c0e17231e7436a
+  dropMoneyMin: 5
+  dropMoneyMax: 15
   trackingTarget: {fileID: 0}
   currentHealth: 0
   lastAttackTimer: 0

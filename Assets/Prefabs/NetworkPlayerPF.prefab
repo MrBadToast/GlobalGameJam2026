@@ -371,7 +371,7 @@ GameObject:
   - component: {fileID: 4038964913041079132}
   m_Layer: 30
   m_Name: NetworkPlayerPF
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -537,8 +537,16 @@ MonoBehaviour:
       Data: 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   damageTextPrefab: {fileID: 5066689262041594168, guid: ef83c4ef34e0bb244aadff05828d25af, type: 3}
   maxHealth: 100
+  _NetworkedHealth: 0
   expression: 0
-  money: 0
+  _NetworkedIsDead:
+    _value: 0
+  _Money: 0
+  _PotionCounts: 
+  potionTypes:
+  - {fileID: 11400000, guid: 525b0c912fc1a1b409e8ca535e140e42, type: 2}
+  - {fileID: 11400000, guid: 6c6b1f13ec1c4304caa48daf765b6d2b, type: 2}
+  - {fileID: 11400000, guid: 077a56e36ab336a418b68a45feb8ab8f, type: 2}
   moveSpeed: 5
   baseDamage: 10
   meleeAttackRadius: 1.5

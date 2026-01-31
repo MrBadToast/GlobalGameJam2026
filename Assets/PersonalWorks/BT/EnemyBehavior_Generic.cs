@@ -8,12 +8,12 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
 {
-    // Å¬¶óÀÌ¾ğÆ®¿Í °øÀ¯ÇØ¾ß ÇÏ´Â µ¥ÀÌÅÍ
+    // Å¬ï¿½ï¿½ï¿½Ì¾ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¾ï¿½ ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     [Networked] public float CurrentHealth { get; set; }
     [Networked] public bool IsDead { get; set; }
 
     [Networked]
-    [OnChangedRender(nameof(OnHeadingChanged))] // °ªÀÌ ¹Ù²î¸é OnHeadingChanged ½ÇÇà
+    [OnChangedRender(nameof(OnHeadingChanged))] // ï¿½ï¿½ï¿½ï¿½ ï¿½Ù²ï¿½ï¿½ OnHeadingChanged ï¿½ï¿½ï¿½ï¿½
     public Vector2 NetworkedHeading { get; set; }
 
 
@@ -48,6 +48,11 @@ public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
     [SerializeField, Required] private GameObject damageTextPrefab;
     [SerializeField] private GameObject projectilePrefab;
 
+    [Title("Drop")]
+    [SerializeField] private NetworkPrefabRef moneyPrefab;
+    [SerializeField] private int dropMoneyMin = 5;
+    [SerializeField] private int dropMoneyMax = 15;
+
     [Title("Debug")]
     [SerializeField] private Transform trackingTarget;
 
@@ -59,8 +64,6 @@ public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
     [SerializeField] private float hurtTimer = 0f;
 
     private float nextAttackTime = 0f;
-
-    private bool isDead = false;
 
     private Vector2 forwarding = Vector2.right;
 
@@ -89,7 +92,7 @@ public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
     //public float CurrentHealth => currentHealth;
     public ExpressionType Expression => expressionType;
     public WeaponType Weapon => weaponType;
-    //public bool IsDead => isDead;
+    //public NetworkBool IsDead => isDead;
 
     public GameObject GameObject => this.GameObject;
 
@@ -97,10 +100,8 @@ public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
     
     public void TakeDamage(float damage, Vector2 direction)
     {
-        if (Object == null || !Object.IsValid) return; // ³×Æ®¿öÅ© °´Ã¼°¡ À¯È¿ÇÏÁö ¾ÊÀ¸¸é Áß´Ü
+        if (Object == null || !Object.IsValid) return; // ï¿½ï¿½Æ®ï¿½ï¿½Å© ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ß´ï¿½
         if (IsDead) return;
-        if (IsDead)
-            return;
 
         float effectiveDamage = damage - defense;
         if (effectiveDamage < 0f)
@@ -126,7 +127,7 @@ public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
 
     public override void FixedUpdateNetwork()
     {
-        // È£½ºÆ®°¡ ¾Æ´Ï¶ó¸é ¾Æ·¡ ·ÎÁ÷À» ½ÇÇàÇÏÁö ¾ÊÀ½
+        // È£ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Æ´Ï¶ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (!Object.HasStateAuthority || IsDead) return;
         
         if (currentMovementState != null)
@@ -350,7 +351,6 @@ public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
             enemy.spriteAnimator.Play("Dead");
             enemy.rbody.linearVelocity = Vector2.zero;
             enemy.rbody.bodyType = RigidbodyType2D.Kinematic;
-            enemy.enabled = false;
         }
 
         public override void UpdateState()
@@ -359,7 +359,7 @@ public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
 
             if (despawnTimer >= despawnDelay)
             {
-                GameObject.Destroy(enemy.gameObject);
+                enemy.Runner.Despawn(enemy.GetComponent<NetworkObject>());
             }
         }
     }
@@ -388,8 +388,42 @@ public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
     {
         aud_Death.Play();
         currentHealth = 0f;
+        IsDead = true;
+
+        // ì„œë²„ì—ì„œë§Œ ëˆ ë“œë ë° Despawn ì²˜ë¦¬
+        if (Object.HasStateAuthority)
+        {
+            SpawnMoneyDrop();
+            StartCoroutine(Cor_DespawnAfterDelay(2f));
+        }
+
         ChangeMovementState(new Movement_Dead(this));
-        isDead = true;
+    }
+
+    private IEnumerator Cor_DespawnAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (Object != null && Object.IsValid)
+        {
+            Runner.Despawn(Object);
+        }
+    }
+
+    private void SpawnMoneyDrop()
+    {
+        if (!moneyPrefab.IsValid) return;
+
+        // ëœë¤ ìœ„ì¹˜ì— ëˆ ìŠ¤í°
+        Vector3 dropPos = transform.position + (Vector3)Random.insideUnitCircle * 0.5f;
+        var moneyObj = Runner.Spawn(moneyPrefab, dropPos, Quaternion.identity);
+
+        // ê¸ˆì•¡ ì„¤ì •
+        if (moneyObj.TryGetComponent<MoneyPickup>(out var pickup))
+        {
+            int amount = Random.Range(dropMoneyMin, dropMoneyMax + 1);
+            pickup.SetAmount(amount);
+        }
     }
 
     #endregion

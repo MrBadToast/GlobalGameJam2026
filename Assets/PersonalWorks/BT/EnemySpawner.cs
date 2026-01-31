@@ -10,7 +10,7 @@ public class EnemySpawner : NetworkBehaviour
 
     public override void Spawned()
     {
-        // È£½ºÆ®¸¸ ½ºÆù ·çÆ¾À» µ¹¸²
+        // í˜¸ìŠ¤íŠ¸ë§Œ ìŠ¤í° ë£¨í‹´ì„ ëŒë¦¼
         if (Object.HasStateAuthority && spawnOnStart)
             StartCoroutine(Cor_SpawnProcess());
     }
@@ -32,10 +32,10 @@ public class EnemySpawner : NetworkBehaviour
     [System.Serializable]
     public class SpawnEnemy : SpawnSegment
     {
-        [SerializeField,LabelText("½ºÆùÇÒ Àû ÇÁ¸®ÆÕ")] private GameObject enemyPrefab;
-        [SerializeField,LabelText("½ºÆùÇÒ À§Ä¡")] private Transform spawnPoint;
-        [SerializeField,LabelText("½ºÆùÀ§Ä¡ ¿ÀÂ÷")] private float spawnRange = 1.0f;
-        [SerializeField,LabelText("½ºÆùÇÒ ¼ö")] private int spawnQuantity = 1;
+        [SerializeField,LabelText("ìŠ¤í°í•  ì  í”„ë¦¬íŒ¹")] private GameObject enemyPrefab;
+        [SerializeField,LabelText("ìŠ¤í°í•  ìœ„ì¹˜")] private Transform spawnPoint;
+        [SerializeField,LabelText("ìŠ¤í°ìœ„ì¹˜ ì˜¤ì°¨")] private float spawnRange = 1.0f;
+        [SerializeField,LabelText("ìŠ¤í°í•  ìˆ˜")] private int spawnQuantity = 1;
 
         public override IEnumerator Cor_Segment(NetworkRunner runner)
         {
@@ -52,12 +52,12 @@ public class EnemySpawner : NetworkBehaviour
     [System.Serializable]
     public class SpawnRepeating : SpawnSegment
     {
-        [SerializeField, LabelText("½ºÆùÇÒ Àû ÇÁ¸®ÆÕ")] private GameObject enemyPrefab;
-        [SerializeField, LabelText("½ºÆùÇÒ À§Ä¡")] private Transform spawnPoint;
-        [SerializeField, LabelText("½ºÆùÀ§Ä¡ ¿ÀÂ÷")] private float spawnRange = 1.0f;
+        [SerializeField, LabelText("ìŠ¤í°í•  ì  í”„ë¦¬íŒ¹")] private GameObject enemyPrefab;
+        [SerializeField, LabelText("ìŠ¤í°í•  ìœ„ì¹˜")] private Transform spawnPoint;
+        [SerializeField, LabelText("ìŠ¤í°ìœ„ì¹˜ ì˜¤ì°¨")] private float spawnRange = 1.0f;
 
-        [SerializeField, LabelText("½ºÆù °£°İ(ÃÊ)")] private float interaval = 1f;
-        [SerializeField, LabelText("¹İº¹ È½¼ö")] private int repeatCount = 5;
+        [SerializeField, LabelText("ìŠ¤í° ê°„ê²©(ì´ˆ)")] private float interaval = 1f;
+        [SerializeField, LabelText("ë°˜ë³µ íšŸìˆ˜")] private int repeatCount = 5;
 
         public override IEnumerator Cor_Segment(NetworkRunner runner)
         {
@@ -72,7 +72,7 @@ public class EnemySpawner : NetworkBehaviour
     [System.Serializable]
     public class Wait : SpawnSegment
     {
-        [SerializeField, LabelText("´ë±â ½Ã°£(ÃÊ)")] private float waitTime = 1f;
+        [SerializeField, LabelText("ëŒ€ê¸° ì‹œê°„(ì´ˆ)")] private float waitTime = 1f;
         public override IEnumerator Cor_Segment(NetworkRunner runner)
         {
             yield return new WaitForSeconds(waitTime);

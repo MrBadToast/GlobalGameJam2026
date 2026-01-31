@@ -30,16 +30,17 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     // ========== IEntity 구현 ==========
     [Header("Stats")]
     [SerializeField] private float maxHealth = 100f;
-    private float currentHealth;
+    [Networked] public float NetworkedHealth { get; set; }
 
     [Header("Expression")]
     [SerializeField] private ExpressionType expression;
 
     // IEntity 속성
     public float MaxHealth => maxHealth;
-    public float CurrentHealth => currentHealth;
+    public float CurrentHealth => NetworkedHealth;
     public ExpressionType Expression => expression;
-    public bool IsDead { get; private set; } = false;
+    [Networked] public NetworkBool NetworkedIsDead { get; set; }
+    public bool IsDead => NetworkedIsDead;
     public Animator Animator => animator;
     public GameObject GameObject => gameObject;
 
@@ -57,8 +58,9 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     public int SelectedPotionCount => PotionCounts[selectedPotionIndex];
     public ItemData[] PotionTypes => potionTypes;
 
-    // 물약 변경 이벤트 (UI 갱신용)
+    // UI 갱신용 이벤트
     public event Action OnPotionChanged;
+    public event Action<int> OnExpressionChanged;  // int = expression index
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 5f;
@@ -91,9 +93,82 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     [SerializeField] private AudioClip deathSound;
     [SerializeField, Range(0f, 1f)] private float soundVolume = 1f;
 
-    // 추가 스탯 (아이템, 버프 등)
-    private EntityStats bonusStats = new EntityStats();
-    public EntityStats BonusStats => bonusStats;
+    // 이동 방향 동기화 (애니메이션용)
+    [Networked, OnChangedRender(nameof(OnMoveDirectionChanged))]
+    public Vector2 NetworkedMoveDirection { get; set; }
+
+    private void OnMoveDirectionChanged()
+    {
+        // 모든 클라이언트에서 애니메이션 업데이트
+        if (animator != null)
+        {
+            animator.SetBool("IsMove", NetworkedMoveDirection != Vector2.zero);
+            if(NetworkedMoveDirection != Vector2.zero)
+            {
+                animator.SetFloat("MoveX", NetworkedMoveDirection.x);
+                animator.SetFloat("MoveY", NetworkedMoveDirection.y);
+            }
+        }
+    }
+
+    // 추가 스탯 (아이템, 버프 등) - 각 표정별로 별도 관리
+    // 인덱스: 0=Neutral, 1=Happy, 2=Sad, 3=Angry
+    [Header("Bonus Stats (Per Expression)")]
+    [Networked, Capacity(4), OnChangedRender(nameof(OnBonusStatsChanged))]
+    public NetworkArray<float> BonusAttackArray => default;
+    [Networked, Capacity(4), OnChangedRender(nameof(OnBonusStatsChanged))]
+    public NetworkArray<float> BonusDamageTakenArray => default;
+    [Networked, Capacity(4), OnChangedRender(nameof(OnBonusStatsChanged))]
+    public NetworkArray<float> BonusMoveSpeedArray => default;
+    [Networked, Capacity(4), OnChangedRender(nameof(OnBonusStatsChanged))]
+    public NetworkArray<float> BonusAttackSpeedArray => default;
+
+    // 현재 표정의 보너스 스탯 (편의 접근자)
+    public float BonusAttack => BonusAttackArray[(int)expression];
+    public float BonusDamageTaken => BonusDamageTakenArray[(int)expression];
+    public float BonusMoveSpeed => BonusMoveSpeedArray[(int)expression];
+    public float BonusAttackSpeed => BonusAttackSpeedArray[(int)expression];
+
+    // 인스펙터에서 확인용 (읽기 전용)
+    [Header("Debug - Current Expression Bonus Stats")]
+    [SerializeField] private float debug_BonusAttack;
+    [SerializeField] private float debug_BonusDamageTaken;
+    [SerializeField] private float debug_BonusMoveSpeed;
+    [SerializeField] private float debug_BonusAttackSpeed;
+
+    private void OnBonusStatsChanged()
+    {
+        UpdateDebugStats();
+    }
+
+    private void UpdateDebugStats()
+    {
+        int idx = (int)expression;
+        debug_BonusAttack = BonusAttackArray[idx];
+        debug_BonusDamageTaken = BonusDamageTakenArray[idx];
+        debug_BonusMoveSpeed = BonusMoveSpeedArray[idx];
+        debug_BonusAttackSpeed = BonusAttackSpeedArray[idx];
+
+        Debug.Log($"[Stats Changed] Expression: {expression}, ATK: {debug_BonusAttack}, DMG: {debug_BonusDamageTaken}, SPD: {debug_BonusMoveSpeed}, ASPD: {debug_BonusAttackSpeed}");
+    }
+
+    // IEntity용 래퍼
+    private EntityStats _bonusStatsWrapper;
+    public EntityStats BonusStats
+    {
+        get
+        {
+            // Networked 값을 EntityStats로 래핑
+            if (_bonusStatsWrapper == null)
+                _bonusStatsWrapper = new EntityStats();
+
+            _bonusStatsWrapper.attackModifier = BonusAttack;
+            _bonusStatsWrapper.damageTakenModifier = BonusDamageTaken;
+            _bonusStatsWrapper.moveSpeedModifier = BonusMoveSpeed;
+            _bonusStatsWrapper.attackSpeedModifier = BonusAttackSpeed;
+            return _bonusStatsWrapper;
+        }
+    }
 
     private Rigidbody2D rb;
     private Vector2 inputVector;
@@ -109,11 +184,19 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     public override void Spawned()
     {
         OnNickNameChanged();
+
+        // 호스트에서 체력 초기화
+        if (Object.HasStateAuthority)
+        {
+            NetworkedHealth = maxHealth;
+            NetworkedIsDead = false;
+        }
+
         if (Object.HasInputAuthority)
         {
             Local = this;
 
-            // 2. 로컬 플레이어의 닉네임을 설정
+            // 로컬 플레이어의 닉네임을 설정
             string savedNickName = PlayerPrefs.GetString("PlayerNickName", "Unknown");
 
             // 호스트라면 직접 설정, 클라이언트라면 RPC 호출
@@ -141,7 +224,6 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
         animator = GetComponentInChildren<Animator>();
         rb = GetComponent<Rigidbody2D>();
         input = new InputSystem_Actions();
-        currentHealth = maxHealth;
         mainCamera = Camera.main;
     }
 
@@ -157,7 +239,14 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
 
     private void Update()
     {
-        if (!Object.HasInputAuthority) return;
+        // Q키 테스트 (네트워크 체크 전)
+        if (UnityEngine.Input.GetKeyDown(KeyCode.Q))
+        {
+            Debug.Log($"[Q Pressed] Object: {Object}, HasInputAuthority: {Object?.HasInputAuthority}, isInputEnabled: {isInputEnabled}");
+        }
+
+        // 네트워크 오브젝트가 없거나 InputAuthority가 없으면 스킵
+        if (Object == null || !Object.HasInputAuthority) return;
 
         // 마우스 월드 좌표 저장 (Gizmo용)
         if (mainCamera != null)
@@ -171,7 +260,8 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
             if (!isInputEnabled)
             {
                 inputVector = Vector2.zero;
-                animator.SetBool("IsMove", false);
+                if (animator != null)
+                    animator.SetBool("IsMove", false);
             }
             return;
         }
@@ -191,9 +281,9 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
         if (inputVector.sqrMagnitude > 1f)
             inputVector = inputVector.normalized;
 
-        animator.SetBool("IsMove", inputVector.sqrMagnitude > 0f);
-        animator.SetFloat("MoveX", inputVector.x);
-        animator.SetFloat("MoveY", inputVector.y);
+        //animator.SetBool("IsMove", inputVector.sqrMagnitude > 0f);
+        //animator.SetFloat("MoveX", inputVector.x);
+        //animator.SetFloat("MoveY", inputVector.y);
     }
 
     public NetworkInputData GetNetworkInput()
@@ -267,10 +357,20 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
             return;
         }
 
-        // 입력을 가져옴 (서버와 클라이언트 모두에서 실행되지만, 
+        // 입력을 가져옴 (서버와 클라이언트 모두에서 실행되지만,
         // StateAuthority인 서버의 계산이 최종 확정됨)
         if (GetInput(out NetworkInputData inputData))
         {
+            // 이동 처리
+            Vector2 movement = inputData.movementInput;
+            if (movement.sqrMagnitude > 1f)
+                movement = movement.normalized;
+
+            rb.linearVelocity = movement * moveSpeed;
+
+            // 이동 방향을 Networked로 동기화 (애니메이션용)
+            NetworkedMoveDirection = movement;
+
             // 공격 버튼이 눌렸을 때만 실행
             if (inputData.isAttackPressed)
             {
@@ -287,12 +387,17 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
                 }
             }
         }
+        else
+        {
+            // 입력이 없으면 정지
+            rb.linearVelocity = Vector2.zero;
+        }
     }
 
     // ========== [근접 공격 로직] ==========
     private void ProcessMeleeAttack(Vector2 direction)
     {
-        float cooldown = attackCooldown / ExpressionData.GetAttackSpeedMultiplier(expression, bonusStats);
+        float cooldown = attackCooldown / ExpressionData.GetAttackSpeedMultiplier(expression, BonusStats);
         if (Time.time < lastAttackTime + cooldown) return;
         lastAttackTime = Time.time;
 
@@ -320,7 +425,7 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     // ========== [원거리 공격 로직] ==========
     private void ProcessRangedAttack(Vector2 direction)
     {
-        float cooldown = attackCooldown / ExpressionData.GetAttackSpeedMultiplier(expression, bonusStats);
+        float cooldown = attackCooldown / ExpressionData.GetAttackSpeedMultiplier(expression, BonusStats);
         if (Time.time < lastAttackTime + cooldown) return;
         lastAttackTime = Time.time;
 
@@ -374,7 +479,17 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     {
         if (IsDead) return;
 
-        currentHealth -= damage;
+        // 서버에서만 체력 감소 처리
+        if (Object.HasStateAuthority)
+        {
+            NetworkedHealth -= damage;
+
+            if (NetworkedHealth <= 0)
+            {
+                NetworkedHealth = 0;
+                Die();
+            }
+        }
 
         // 피격 사운드
         if (hitSound != null)
@@ -384,19 +499,13 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
 
         // 피격 애니메이션
         animator?.SetTrigger("Hit");
-
-        if (currentHealth <= 0)
-        {
-            currentHealth = 0;
-            Die();
-        }
     }
 
     public void Die()
     {
         if (IsDead) return;
 
-        IsDead = true;
+        NetworkedIsDead = true;
 
         // 죽음 사운드
         if (deathSound != null)
@@ -421,31 +530,21 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
             return;
 
         expression = (ExpressionType)index;
+        OnExpressionChanged?.Invoke(index);
+
+        // 표정 변경 시 디버그 스탯 업데이트
+        UpdateDebugStats();
     }
 
     /// <summary>
-    /// 골드 획득 (서버에서만 호출)
+    /// 골드 획득
     /// </summary>
-    public void AddMoney(int amount)
-    {
-        if (Object.HasStateAuthority)
-        {
-            Money += amount;
-        }
-        else
-        {
-            RPC_AddMoney(amount);
-        }
-    }
+    public void AddMoney(int amount) => Money += amount;
 
-    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    public void RPC_AddMoney(int amount, RpcInfo info = default)
-    {
-        Money += amount;
-    }
+    // ========== 상점 RPC ==========
 
     /// <summary>
-    /// 상점 아이템 구매 (클라이언트 → 서버)
+    /// 물약 구매 (클라이언트 → 서버)
     /// </summary>
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
     public void RPC_BuyItem(int price, int potionIndex, RpcInfo info = default)
@@ -459,25 +558,30 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
 
         // 물약 추가
         PotionCounts.Set(potionIndex, PotionCounts[potionIndex] + 1);
+        OnPotionChanged?.Invoke();
     }
 
     /// <summary>
     /// 버프 아이템 구매 (클라이언트 → 서버)
     /// </summary>
+    /// <param name="expressionIndex">버프 대상 표정 인덱스 (0=Neutral, 1=Happy, 2=Sad, 3=Angry)</param>
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    public void RPC_BuyBuff(int price, float atk, float dmgTaken, float moveSpd, float atkSpd, RpcInfo info = default)
+    public void RPC_BuyBuff(int price, int expressionIndex, float atk, float dmgTaken, float moveSpd, float atkSpd, RpcInfo info = default)
     {
         // 서버에서 검증
         if (Money < price) return;
+        if (expressionIndex < 0 || expressionIndex >= 4) return;
 
         // 돈 차감
         Money -= price;
 
-        // 버프 적용
-        bonusStats.AddAttack(atk);
-        bonusStats.AddDamageTaken(dmgTaken);
-        bonusStats.AddMoveSpeed(moveSpd);
-        bonusStats.AddAttackSpeed(atkSpd);
+        // 해당 표정에만 버프 적용
+        BonusAttackArray.Set(expressionIndex, BonusAttackArray[expressionIndex] + atk);
+        BonusDamageTakenArray.Set(expressionIndex, BonusDamageTakenArray[expressionIndex] + dmgTaken);
+        BonusMoveSpeedArray.Set(expressionIndex, BonusMoveSpeedArray[expressionIndex] + moveSpd);
+        BonusAttackSpeedArray.Set(expressionIndex, BonusAttackSpeedArray[expressionIndex] + atkSpd);
+
+        Debug.Log($"[RPC_BuyBuff] Expression[{expressionIndex}] ATK: {BonusAttackArray[expressionIndex]}, DMG: {BonusDamageTakenArray[expressionIndex]}, SPD: {BonusMoveSpeedArray[expressionIndex]}, ASPD: {BonusAttackSpeedArray[expressionIndex]}");
     }
 
     /// <summary>
@@ -515,10 +619,16 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
             if (selectedPotionIndex > 2) selectedPotionIndex = 0;
             OnPotionChanged?.Invoke();
         }
+
+        // Q키로 물약 사용
+        if (UnityEngine.Input.GetKeyDown(KeyCode.Q))
+        {
+            UseSelectedPotion();
+        }
     }
 
     /// <summary>
-    /// 아이템 추가 (물약은 개수 증가, 버프는 즉시 적용)
+    /// 아이템 추가 (물약은 개수 증가, 버프는 해당 표정에 적용)
     /// </summary>
     public bool AddItem(ItemData item)
     {
@@ -526,8 +636,14 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
 
         if (item.category == ItemCategory.Buff)
         {
-            // 버프: 즉시 적용
-            item.ApplyBuff(bonusStats);
+            // 버프: 해당 표정에만 적용
+            int expressionIndex = item.itemType.GetExpressionIndex();
+            if (expressionIndex < 0) return false;
+
+            BonusAttackArray.Set(expressionIndex, BonusAttackArray[expressionIndex] + item.attackModifier);
+            BonusDamageTakenArray.Set(expressionIndex, BonusDamageTakenArray[expressionIndex] + item.damageTakenModifier);
+            BonusMoveSpeedArray.Set(expressionIndex, BonusMoveSpeedArray[expressionIndex] + item.moveSpeedModifier);
+            BonusAttackSpeedArray.Set(expressionIndex, BonusAttackSpeedArray[expressionIndex] + item.attackSpeedModifier);
             return true;
         }
         else if (item.category == ItemCategory.Potion)
@@ -536,7 +652,8 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
             int potionIndex = GetPotionIndex(item.itemType);
             if (potionIndex >= 0)
             {
-                AddPotion(potionIndex, 1);
+                PotionCounts.Set(potionIndex, PotionCounts[potionIndex] + 1);
+                OnPotionChanged?.Invoke();
                 return true;
             }
         }
@@ -550,23 +667,8 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     public void AddPotion(int potionIndex, int amount = 1)
     {
         if (potionIndex < 0 || potionIndex >= 3) return;
-
-        if (Object.HasStateAuthority)
-        {
-            PotionCounts.Set(potionIndex, PotionCounts[potionIndex] + amount);
-            OnPotionChanged?.Invoke();
-        }
-        else
-        {
-            RPC_AddPotion(potionIndex, amount);
-        }
-    }
-
-    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    public void RPC_AddPotion(int potionIndex, int amount, RpcInfo info = default)
-    {
-        if (potionIndex < 0 || potionIndex >= 3) return;
         PotionCounts.Set(potionIndex, PotionCounts[potionIndex] + amount);
+        OnPotionChanged?.Invoke();
     }
 
     /// <summary>
@@ -577,15 +679,10 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
         if (PotionCounts[selectedPotionIndex] <= 0) return false;
         if (potionTypes[selectedPotionIndex] == null) return false;
 
-        if (Object.HasStateAuthority)
-        {
-            ApplyPotionEffect(selectedPotionIndex);
-        }
-        else
-        {
-            RPC_UsePotion(selectedPotionIndex);
-        }
+        Debug.Log($"{selectedPotionIndex}");
 
+        // 서버에 물약 사용 요청
+        RPC_UsePotion(selectedPotionIndex);
         return true;
     }
 
@@ -596,16 +693,11 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
         if (PotionCounts[potionIndex] <= 0) return;
         if (potionTypes[potionIndex] == null) return;
 
-        ApplyPotionEffect(potionIndex);
-    }
-
-    private void ApplyPotionEffect(int potionIndex)
-    {
         ItemData potion = potionTypes[potionIndex];
 
         // 체력 회복
-        currentHealth += potion.healAmount;
-        if (currentHealth > maxHealth) currentHealth = maxHealth;
+        NetworkedHealth += potion.healAmount;
+        if (NetworkedHealth > maxHealth) NetworkedHealth = maxHealth;
 
         // 개수 감소
         PotionCounts.Set(potionIndex, PotionCounts[potionIndex] - 1);

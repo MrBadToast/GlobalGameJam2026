@@ -21,4 +21,4 @@ MonoBehaviour:
   damageTakenModifier: 0
   moveSpeedModifier: 0
   attackSpeedModifier: 0
-  healAmount: 10
+  healAmount: 5

@@ -1,12 +1,13 @@
+using Fusion;
 using UnityEngine;
+using static UnityEngine.RuleTile.TilingRuleOutput;
 
 [RequireComponent(typeof(CircleCollider2D))]
-public class EnemyProjectile : MonoBehaviour
+public class EnemyProjectile : NetworkBehaviour
 {
     [SerializeField] private float travelSpeed = 10f;
     [SerializeField] private float projectileDamage = 10f;
     [SerializeField] private float projectileLifetime = 5f;
-    [SerializeField] private LayerMask hurtLayer;
 
     private CircleCollider2D circleCollider;
     private void Start()
@@ -18,16 +19,22 @@ public class EnemyProjectile : MonoBehaviour
     {
         circleCollider = GetComponent<CircleCollider2D>();
     }
-
-    void FixedUpdate()
+        
+    public override void FixedUpdateNetwork()
     {
         transform.position += transform.right * travelSpeed * Time.fixedDeltaTime;
+    }
 
-        RaycastHit2D rHit = Physics2D.CircleCast(transform.position, circleCollider.radius, transform.right,0f, hurtLayer);
-        
-        if(rHit)
+    // 트리거 충돌 시 호출되는 이벤트 함수
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        // 1. 태그가 "Player"인지 확인
+        if (collision.CompareTag("Player"))
         {
-            rHit.collider.GetComponent<IEntity>()?.TakeDamage(projectileDamage, transform.right);
+            // 2. 데미지 인터페이스 실행
+            collision.GetComponent<IEntity>()?.TakeDamage(projectileDamage, transform.right);
+
+            // 3. 충돌 후 발사체 제거
             Destroy(gameObject);
         }
     }

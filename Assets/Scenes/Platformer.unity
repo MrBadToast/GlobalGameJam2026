@@ -46158,7 +46158,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 522009132}
-  - component: {fileID: 522009131}
   - component: {fileID: 522009130}
   - component: {fileID: 522009133}
   m_Layer: 0
@@ -46180,55 +46179,56 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77fb4b864bab0804dadb40edbde58f7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
+  npcObject: {fileID: 545582170}
   spawnOnStart: 1
   spawnSegments:
-  - rid: 3059453383213056125
+  - rid: 1769118228391395428
+  - rid: 1769118228391395430
+  - rid: 1769118228391395431
+  - rid: 1769118228391395432
+  - rid: 1769118228391395433
   references:
     version: 2
     RefIds:
-    - rid: 3059453383213056125
-      type: {class: EnemySpawner/SpawnEnemy, ns: , asm: Assembly-CSharp}
+    - rid: 1769118228391395428
+      type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
       data:
-        enemyPrefab: {fileID: 5803785839536338772, guid: df2ef8dc928c2984895f8e3d587ec627, type: 3}
+        enemyPrefab: {fileID: 5803785839536338772, guid: d4486dc3ea3c5054bbe85a9729d676ef, type: 3}
         spawnPoint: {fileID: 654869625}
         spawnRange: 1
-        spawnQuantity: 3
---- !u!58 &522009131
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 522009129}
-  m_Enabled: 0
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Radius: 0.5
+        interaval: 2
+        repeatCount: 10
+    - rid: 1769118228391395430
+      type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
+      data:
+        enemyPrefab: {fileID: 5803785839536338772, guid: d4486dc3ea3c5054bbe85a9729d676ef, type: 3}
+        spawnPoint: {fileID: 1830394028}
+        spawnRange: 1
+        interaval: 2
+        repeatCount: 10
+    - rid: 1769118228391395431
+      type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
+      data:
+        enemyPrefab: {fileID: 5803785839536338772, guid: d4486dc3ea3c5054bbe85a9729d676ef, type: 3}
+        spawnPoint: {fileID: 1549945697}
+        spawnRange: 1
+        interaval: 2
+        repeatCount: 10
+    - rid: 1769118228391395432
+      type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
+      data:
+        enemyPrefab: {fileID: 5803785839536338772, guid: 56fa50db4a0d8924185ebcfa70ff885d, type: 3}
+        spawnPoint: {fileID: 1370635971}
+        spawnRange: 1
+        interaval: 2
+        repeatCount: 10
+    - rid: 1769118228391395433
+      type: {class: EnemySpawner/Wait, ns: , asm: Assembly-CSharp}
+      data:
+        waitTime: 180
+        incrementWave: 1
+        activateNpc: 1
+        deactivateAfterWait: 1
 --- !u!4 &522009132
 Transform:
   m_ObjectHideFlags: 0
@@ -46285,7 +46285,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &545582171
 MonoBehaviour:
   m_ObjectHideFlags: 0

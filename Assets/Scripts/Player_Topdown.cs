@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using Fusion;
 using Sirenix.OdinInspector;
 using System.Collections;
@@ -46,6 +48,20 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     [SerializeField] private int money = 0;
     public int Money => money;
 
+    [Header("Potion")]
+    [SerializeField] private ItemData[] potionTypes = new ItemData[3];  // 물약 종류 3개 (Inspector에서 할당)
+    [SerializeField] private int[] potionCounts = new int[3];           // 각 물약 보유 개수
+    private int selectedPotionIndex = 0;
+
+    public int SelectedPotionIndex => selectedPotionIndex;
+    public ItemData SelectedPotionData => potionTypes[selectedPotionIndex];
+    public int SelectedPotionCount => potionCounts[selectedPotionIndex];
+    public ItemData[] PotionTypes => potionTypes;
+    public int[] PotionCounts => potionCounts;
+
+    // 물약 변경 이벤트 (UI 갱신용)
+    public event Action OnPotionChanged;
+
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 5f;
 
@@ -86,8 +102,11 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     private float lastAttackTime;
     public Camera mainCamera;
     private Vector2 mouseWorldPosition;
+    private bool isInputEnabled = true;
 
     private InputSystem_Actions input;
+
+    public bool IsInputEnabled => isInputEnabled;
 
     public override void Spawned()
     {
@@ -148,10 +167,20 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
             mouseWorldPosition = mainCamera.ScreenToWorldPoint(UnityEngine.Input.mousePosition);
         }
 
-        if (IsDead) return;
+        if (IsDead || !isInputEnabled)
+        {
+            // 입력 비활성화 시 이동 멈춤
+            if (!isInputEnabled)
+            {
+                inputVector = Vector2.zero;
+                animator.SetBool("IsMove", false);
+            }
+            return;
+        }
 
         HandleMovementInput();
         HandleExpressionInput();
+        HandlePotionSelectInput();
         GetNetworkInput();
     }
 
@@ -400,6 +429,135 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     /// 골드 획득
     /// </summary>
     public void AddMoney(int amount) => money += amount;
+
+    /// <summary>
+    /// 입력 활성화/비활성화 (UI 열림 등)
+    /// </summary>
+    public void SetInputEnabled(bool enabled)
+    {
+        isInputEnabled = enabled;
+
+        if (!enabled)
+        {
+            // 입력 비활성화 시 즉시 멈춤
+            inputVector = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
+        }
+    }
+
+    // ========== 물약/아이템 ==========
+
+    private void HandlePotionSelectInput()
+    {
+        float scroll = UnityEngine.Input.mouseScrollDelta.y;
+
+        if (scroll > 0)
+        {
+            // 스크롤 업: 이전 물약
+            selectedPotionIndex--;
+            if (selectedPotionIndex < 0) selectedPotionIndex = 2;
+            OnPotionChanged?.Invoke();
+        }
+        else if (scroll < 0)
+        {
+            // 스크롤 다운: 다음 물약
+            selectedPotionIndex++;
+            if (selectedPotionIndex > 2) selectedPotionIndex = 0;
+            OnPotionChanged?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// 아이템 추가 (물약은 개수 증가, 버프는 즉시 적용)
+    /// </summary>
+    public bool AddItem(ItemData item)
+    {
+        if (item == null) return false;
+
+        if (item.category == ItemCategory.Buff)
+        {
+            // 버프: 즉시 적용
+            item.ApplyBuff(bonusStats);
+            return true;
+        }
+        else if (item.category == ItemCategory.Potion)
+        {
+            // 물약: 해당 종류의 개수 증가
+            int potionIndex = GetPotionIndex(item.itemType);
+            if (potionIndex >= 0)
+            {
+                potionCounts[potionIndex]++;
+                OnPotionChanged?.Invoke();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 특정 물약 종류의 개수 추가
+    /// </summary>
+    public void AddPotion(int potionIndex, int amount = 1)
+    {
+        if (potionIndex < 0 || potionIndex >= 3) return;
+        potionCounts[potionIndex] += amount;
+        OnPotionChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// 현재 선택된 물약 사용
+    /// </summary>
+    public bool UseSelectedPotion()
+    {
+        if (potionCounts[selectedPotionIndex] <= 0) return false;
+        if (potionTypes[selectedPotionIndex] == null) return false;
+
+        ItemData potion = potionTypes[selectedPotionIndex];
+
+        // 체력 회복
+        currentHealth += potion.healAmount;
+        if (currentHealth > maxHealth) currentHealth = maxHealth;
+
+        // 개수 감소
+        potionCounts[selectedPotionIndex]--;
+        OnPotionChanged?.Invoke();
+
+        return true;
+    }
+
+    /// <summary>
+    /// 물약 종류 선택
+    /// </summary>
+    public void SelectPotionSlot(int index)
+    {
+        if (index < 0 || index >= 3) return;
+        selectedPotionIndex = index;
+        OnPotionChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// ItemType으로 물약 인덱스 찾기
+    /// </summary>
+    private int GetPotionIndex(ItemType itemType)
+    {
+        switch (itemType)
+        {
+            case ItemType.Potion1: return 0;
+            case ItemType.Potion2: return 1;
+            case ItemType.Potion3: return 2;
+            default: return -1;
+        }
+    }
+
+    /// <summary>
+    /// 특정 물약의 개수 가져오기
+    /// </summary>
+    public int GetPotionCount(int index)
+    {
+        if (index < 0 || index >= 3) return 0;
+        return potionCounts[index];
+    }
 
     // ========== Gizmos ==========
 

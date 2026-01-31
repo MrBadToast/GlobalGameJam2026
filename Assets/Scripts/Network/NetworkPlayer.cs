@@ -3,9 +3,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Diagnostics;
 
-public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
+public class NetworkPlayer : NetworkBehaviour/*, IPlayerLeft*/
 {
-    public TextMeshProUGUI playerNickName;
+   /* public TextMeshProUGUI playerNickName;
     public static NetworkPlayer Local {  get; private set; }
     public Transform playerModel;
 
@@ -27,11 +27,11 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         }
         else
         {
-            /*Camera localCamera = GetComponentInChildren<Camera>();
+            *//*Camera localCamera = GetComponentInChildren<Camera>();
             localCamera.enabled = false;*/
 
             /*AudioListener audioListener = GetComponentInChildren<AudioListener>();
-            audioListener.enabled = false;*/
+            audioListener.enabled = false;*//*
 
             Debug.Log("Spawned remote player!!!!");
         }
@@ -56,5 +56,5 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     {
         Debug.Log($"[RPC] SetNickName {nickName}");
         this.nickName = nickName;
-    }
+    }*/
 }

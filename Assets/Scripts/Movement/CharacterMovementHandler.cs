@@ -26,7 +26,7 @@ public class CharacterMovementHandler : NetworkBehaviour
         }
     }
 }
-public struct NetworkInputData : INetworkInput
+/*public struct NetworkInputData : INetworkInput
 {
     public Vector2 movementInput;
-}
+}*/

@@ -24,7 +24,7 @@ public class MoneyDrop : MonoBehaviour
 
     private void Collect()
     {
-        if (Player_Topdown.Instance != null)
+        /*if (Player_Topdown.Instance != null)
         {
             Player_Topdown.Instance.AddMoney(moneyAmount);
 
@@ -34,6 +34,6 @@ public class MoneyDrop : MonoBehaviour
             }
         }
 
-        Destroy(gameObject);
+        Destroy(gameObject);*/
     }
 }

@@ -733,6 +733,8 @@ GameObject:
   - component: {fileID: 5241451798703315677}
   - component: {fileID: 1275883655539085124}
   - component: {fileID: 2069853158838215875}
+  - component: {fileID: 8134192826421773070}
+  - component: {fileID: 616331593661636059}
   m_Layer: 29
   m_Name: ProjectileEnemy
   m_TagString: Untagged
@@ -770,6 +772,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82beb68869b05b146860bd04229a9ca3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyBehavior_Generic
+  _CurrentHealth: 0
+  _IsDead: 0
   isProjectileAttack: 1
   weaponType: 0
   expressionType: 0
@@ -910,3 +914,40 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.19
+--- !u!114 &8134192826421773070
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9014044141882305098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
+  SortKey: 2134587230
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 1355393389496712370}
+  - {fileID: 616331593661636059}
+  ForceRemoteRenderTimeframe: 0
+--- !u!114 &616331593661636059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9014044141882305098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkTransform
+  _stateAuthorityChangeErrorCorrectionDelta: 0
+  SyncScale: 0
+  SyncParent: 0
+  _autoAOIOverride: 1
+  DisableSharedModeInterpolation: 0

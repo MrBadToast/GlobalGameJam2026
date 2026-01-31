@@ -57,4 +57,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd72871b8322f574bb3e0d13022d457a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Spawner
-  playerPrefab: {fileID: -2023351381454764934, guid: c065fbc0c7b8f0a4ea2758e17f2de6c6, type: 3}
+  playerPrefab: {fileID: -1776364889099176310, guid: c065fbc0c7b8f0a4ea2758e17f2de6c6, type: 3}
+  characterInputHandler: {fileID: 0}

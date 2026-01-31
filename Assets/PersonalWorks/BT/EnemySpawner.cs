@@ -1,15 +1,17 @@
+using Fusion;
 using Sirenix.OdinInspector;
 using System.Collections;
 using UnityEngine;
 
-public class EnemySpawner : MonoBehaviour
+public class EnemySpawner : NetworkBehaviour
 {
     [SerializeField] private bool spawnOnStart = true;
     [SerializeReference] public SpawnSegment[] spawnSegments;
 
-    public void Start()
+    public override void Spawned()
     {
-        if (spawnOnStart)
+        // 호스트만 스폰 루틴을 돌림
+        if (Object.HasStateAuthority && spawnOnStart)
             StartCoroutine(Cor_SpawnProcess());
     }
 
@@ -17,17 +19,14 @@ public class EnemySpawner : MonoBehaviour
     {
         foreach(var segment in spawnSegments)
         {
-            yield return StartCoroutine(segment.Cor_Segment());
+            yield return StartCoroutine(segment.Cor_Segment(Runner));
         }
     }
 
     [System.Serializable]
     public class SpawnSegment
     {
-        public virtual IEnumerator Cor_Segment()
-        {
-            yield return null;
-        }
+        public virtual IEnumerator Cor_Segment(NetworkRunner runner) => null;
     }
 
     [System.Serializable]
@@ -38,11 +37,12 @@ public class EnemySpawner : MonoBehaviour
         [SerializeField,LabelText("스폰위치 오차")] private float spawnRange = 1.0f;
         [SerializeField,LabelText("스폰할 수")] private int spawnQuantity = 1;
 
-        public override IEnumerator Cor_Segment()
+        public override IEnumerator Cor_Segment(NetworkRunner runner)
         {
             for (int i = 0; i < spawnQuantity; i++)
             {
-                Instantiate(enemyPrefab, spawnPoint.position + Random.insideUnitSphere * spawnRange, Quaternion.identity);
+                Vector3 pos = spawnPoint.position + Random.insideUnitSphere * spawnRange;
+                runner.Spawn(enemyPrefab, pos, Quaternion.identity);
             }
             yield return null;
         }
@@ -59,11 +59,11 @@ public class EnemySpawner : MonoBehaviour
         [SerializeField, LabelText("스폰 간격(초)")] private float interaval = 1f;
         [SerializeField, LabelText("반복 횟수")] private int repeatCount = 5;
 
-        public override IEnumerator Cor_Segment()
+        public override IEnumerator Cor_Segment(NetworkRunner runner)
         {
             for(int i = 0; i < repeatCount; i++)
             {
-                Instantiate(enemyPrefab, spawnPoint.position + Random.insideUnitSphere * spawnRange, Quaternion.identity);
+                runner.Spawn(enemyPrefab, spawnPoint.position + Random.insideUnitSphere * spawnRange, Quaternion.identity);
                 yield return new WaitForSeconds(interaval);
             }
         }
@@ -73,7 +73,7 @@ public class EnemySpawner : MonoBehaviour
     public class Wait : SpawnSegment
     {
         [SerializeField, LabelText("대기 시간(초)")] private float waitTime = 1f;
-        public override IEnumerator Cor_Segment()
+        public override IEnumerator Cor_Segment(NetworkRunner runner)
         {
             yield return new WaitForSeconds(waitTime);
         }

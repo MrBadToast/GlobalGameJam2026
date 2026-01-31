@@ -5,44 +5,53 @@ using TMPro;
 
 /// <summary>
 /// 상점 슬롯 - 개별 아이템 표시 및 구매
+/// 이제 각 슬롯에 ShopItemData를 직접 할당
 /// </summary>
 public class ShopSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerMoveHandler
 {
+    [Header("Shop Item")]
+    [SerializeField] private ShopItemData shopItemData;
+
     [Header("UI References")]
     [SerializeField] private Image iconImage;
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI priceText;
     [SerializeField] private Button buyButton;
 
-    private ShopItemData shopItemData;
+    public ShopItemData ItemData => shopItemData;
+
+    private void Awake()
+    {
+        Initialize();
+    }
 
     /// <summary>
     /// 슬롯 초기화
     /// </summary>
-    public void Initialize(ShopItemData data)
+    public void Initialize()
     {
-        shopItemData = data;
-
-        if (data == null || data.itemData == null)
+        if (shopItemData == null || shopItemData.itemData == null)
         {
             gameObject.SetActive(false);
             return;
         }
 
+        gameObject.SetActive(true);
+
         // UI 업데이트
-        if (iconImage != null && data.itemData.icon != null)
+        if (iconImage != null && shopItemData.itemData.icon != null)
         {
-            iconImage.sprite = data.itemData.icon;
+            iconImage.sprite = shopItemData.itemData.icon;
         }
 
         if (nameText != null)
         {
-            nameText.text = data.itemData.itemName;
+            nameText.text = shopItemData.itemData.itemName;
         }
 
         if (priceText != null)
         {
-            priceText.text = data.price.ToString();
+            priceText.text = shopItemData.price.ToString();
         }
 
         // 구매 버튼 이벤트
@@ -51,6 +60,15 @@ public class ShopSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
             buyButton.onClick.RemoveAllListeners();
             buyButton.onClick.AddListener(OnBuyClicked);
         }
+    }
+
+    /// <summary>
+    /// 런타임에 아이템 변경
+    /// </summary>
+    public void SetItemData(ShopItemData data)
+    {
+        shopItemData = data;
+        Initialize();
     }
 
     private void OnBuyClicked()

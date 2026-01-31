@@ -7,7 +7,7 @@ public class TitleBehaivor : MonoBehaviour
     [SerializeField] private string mainGameScene;
     public void LoadMainScene()
     {
-        SceneLoader.Instance.LoadNewScene(mainGameScene);
+        //SceneLoader.Instance.LoadNewScene(mainGameScene);
     }
 
     public void Quit()

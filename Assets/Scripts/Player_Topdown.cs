@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using Fusion;
 using Sirenix.OdinInspector;
-using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -41,8 +40,26 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     [SerializeField] private WeaponController weaponController;
 
     // IEntity 속성
-    public float MaxHealth => maxHealth;
-    public float CurrentHealth => NetworkedHealth;
+    public float MaxHealth
+    {
+        get
+        {
+            // 2. HUD가 MaxHealth를 읽을 때도 안전하게 보호
+            return maxHealth;
+        }
+    }
+
+    public float CurrentHealth
+    {
+        get
+        {
+            // 1. Object가 없거나, 아직 네트워크상에 존재하지(Spawned 전) 않는지 확인
+            if (Object == null || !Object.IsValid)
+                return 0f;
+
+            return NetworkedHealth;
+        }
+    }
     public ExpressionType Expression => (ExpressionType)NetworkedExpression;
     [Networked] public NetworkBool NetworkedIsDead { get; set; }
     public bool IsDead => NetworkedIsDead;
@@ -50,8 +67,23 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     public GameObject GameObject => gameObject;
 
     // ========== 플레이어 전용 ==========
+    [Networked] private int _networkedMoney { get; set; }
     [Header("Player Only")]
-    [Networked] public int Money { get; set; }
+    public int Money
+    {
+        get
+        {
+            // 네트워크 연결 상태가 아니면 안전하게 0을 반환
+            if (Object == null || !Object.IsValid) return 0;
+            return _networkedMoney;
+        }
+        set
+        {
+            // 권한이 있을 때만 수정 가능하도록 보호 (선택 사항)
+            if (Object != null && Object.HasStateAuthority)
+                _networkedMoney = value;
+        }
+    }
 
     [Header("Potion")]
     [SerializeField] private ItemData[] potionTypes = new ItemData[3];  // 물약 종류 3개 (Inspector에서 할당)
@@ -144,7 +176,8 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
 
     private void OnBonusStatsChanged()
     {
-        UpdateDebugStats();
+        if (transform != null)
+            UpdateDebugStats();
     }
 
     private void UpdateDebugStats()
@@ -540,6 +573,8 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
         if (IsDead) return;
 
         NetworkedIsDead = true;
+
+        SessionExit.Instance.gameObject.SetActive(true);
 
         // 죽음 사운드
         if (deathSound != null)

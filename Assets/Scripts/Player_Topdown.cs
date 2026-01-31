@@ -58,8 +58,9 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     public int SelectedPotionCount => PotionCounts[selectedPotionIndex];
     public ItemData[] PotionTypes => potionTypes;
 
-    // 물약 변경 이벤트 (UI 갱신용)
+    // UI 갱신용 이벤트
     public event Action OnPotionChanged;
+    public event Action<int> OnExpressionChanged;  // int = expression index
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 5f;
@@ -110,15 +111,26 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
         }
     }
 
-    // 추가 스탯 (아이템, 버프 등) - Networked로 동기화
-    [Header("Bonus Stats (Networked)")]
-    [Networked, OnChangedRender(nameof(OnBonusStatsChanged))] public float BonusAttack { get; set; }
-    [Networked, OnChangedRender(nameof(OnBonusStatsChanged))] public float BonusDamageTaken { get; set; }
-    [Networked, OnChangedRender(nameof(OnBonusStatsChanged))] public float BonusMoveSpeed { get; set; }
-    [Networked, OnChangedRender(nameof(OnBonusStatsChanged))] public float BonusAttackSpeed { get; set; }
+    // 추가 스탯 (아이템, 버프 등) - 각 표정별로 별도 관리
+    // 인덱스: 0=Neutral, 1=Happy, 2=Sad, 3=Angry
+    [Header("Bonus Stats (Per Expression)")]
+    [Networked, Capacity(4), OnChangedRender(nameof(OnBonusStatsChanged))]
+    public NetworkArray<float> BonusAttackArray => default;
+    [Networked, Capacity(4), OnChangedRender(nameof(OnBonusStatsChanged))]
+    public NetworkArray<float> BonusDamageTakenArray => default;
+    [Networked, Capacity(4), OnChangedRender(nameof(OnBonusStatsChanged))]
+    public NetworkArray<float> BonusMoveSpeedArray => default;
+    [Networked, Capacity(4), OnChangedRender(nameof(OnBonusStatsChanged))]
+    public NetworkArray<float> BonusAttackSpeedArray => default;
+
+    // 현재 표정의 보너스 스탯 (편의 접근자)
+    public float BonusAttack => BonusAttackArray[(int)expression];
+    public float BonusDamageTaken => BonusDamageTakenArray[(int)expression];
+    public float BonusMoveSpeed => BonusMoveSpeedArray[(int)expression];
+    public float BonusAttackSpeed => BonusAttackSpeedArray[(int)expression];
 
     // 인스펙터에서 확인용 (읽기 전용)
-    [Header("Debug - Current Bonus Stats")]
+    [Header("Debug - Current Expression Bonus Stats")]
     [SerializeField] private float debug_BonusAttack;
     [SerializeField] private float debug_BonusDamageTaken;
     [SerializeField] private float debug_BonusMoveSpeed;
@@ -126,12 +138,18 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
 
     private void OnBonusStatsChanged()
     {
-        debug_BonusAttack = BonusAttack;
-        debug_BonusDamageTaken = BonusDamageTaken;
-        debug_BonusMoveSpeed = BonusMoveSpeed;
-        debug_BonusAttackSpeed = BonusAttackSpeed;
+        UpdateDebugStats();
+    }
 
-        Debug.Log($"[Stats Changed] ATK: {BonusAttack}, DMG: {BonusDamageTaken}, SPD: {BonusMoveSpeed}, ASPD: {BonusAttackSpeed}");
+    private void UpdateDebugStats()
+    {
+        int idx = (int)expression;
+        debug_BonusAttack = BonusAttackArray[idx];
+        debug_BonusDamageTaken = BonusDamageTakenArray[idx];
+        debug_BonusMoveSpeed = BonusMoveSpeedArray[idx];
+        debug_BonusAttackSpeed = BonusAttackSpeedArray[idx];
+
+        Debug.Log($"[Stats Changed] Expression: {expression}, ATK: {debug_BonusAttack}, DMG: {debug_BonusDamageTaken}, SPD: {debug_BonusMoveSpeed}, ASPD: {debug_BonusAttackSpeed}");
     }
 
     // IEntity용 래퍼
@@ -512,6 +530,10 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
             return;
 
         expression = (ExpressionType)index;
+        OnExpressionChanged?.Invoke(index);
+
+        // 표정 변경 시 디버그 스탯 업데이트
+        UpdateDebugStats();
     }
 
     /// <summary>
@@ -542,22 +564,24 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     /// <summary>
     /// 버프 아이템 구매 (클라이언트 → 서버)
     /// </summary>
+    /// <param name="expressionIndex">버프 대상 표정 인덱스 (0=Neutral, 1=Happy, 2=Sad, 3=Angry)</param>
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    public void RPC_BuyBuff(int price, float atk, float dmgTaken, float moveSpd, float atkSpd, RpcInfo info = default)
+    public void RPC_BuyBuff(int price, int expressionIndex, float atk, float dmgTaken, float moveSpd, float atkSpd, RpcInfo info = default)
     {
         // 서버에서 검증
         if (Money < price) return;
+        if (expressionIndex < 0 || expressionIndex >= 4) return;
 
         // 돈 차감
         Money -= price;
 
-        // 버프 적용 (Networked 속성에 직접 추가)
-        BonusAttack += atk;
-        BonusDamageTaken += dmgTaken;
-        BonusMoveSpeed += moveSpd;
-        BonusAttackSpeed += atkSpd;
+        // 해당 표정에만 버프 적용
+        BonusAttackArray.Set(expressionIndex, BonusAttackArray[expressionIndex] + atk);
+        BonusDamageTakenArray.Set(expressionIndex, BonusDamageTakenArray[expressionIndex] + dmgTaken);
+        BonusMoveSpeedArray.Set(expressionIndex, BonusMoveSpeedArray[expressionIndex] + moveSpd);
+        BonusAttackSpeedArray.Set(expressionIndex, BonusAttackSpeedArray[expressionIndex] + atkSpd);
 
-        Debug.Log($"[RPC_BuyBuff] ATK: {BonusAttack}, DMG: {BonusDamageTaken}, SPD: {BonusMoveSpeed}, ASPD: {BonusAttackSpeed}");
+        Debug.Log($"[RPC_BuyBuff] Expression[{expressionIndex}] ATK: {BonusAttackArray[expressionIndex]}, DMG: {BonusDamageTakenArray[expressionIndex]}, SPD: {BonusMoveSpeedArray[expressionIndex]}, ASPD: {BonusAttackSpeedArray[expressionIndex]}");
     }
 
     /// <summary>
@@ -604,7 +628,7 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     }
 
     /// <summary>
-    /// 아이템 추가 (물약은 개수 증가, 버프는 즉시 적용)
+    /// 아이템 추가 (물약은 개수 증가, 버프는 해당 표정에 적용)
     /// </summary>
     public bool AddItem(ItemData item)
     {
@@ -612,11 +636,14 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
 
         if (item.category == ItemCategory.Buff)
         {
-            // 버프: 즉시 적용 (Networked 속성에 직접 추가)
-            BonusAttack += item.attackModifier;
-            BonusDamageTaken += item.damageTakenModifier;
-            BonusMoveSpeed += item.moveSpeedModifier;
-            BonusAttackSpeed += item.attackSpeedModifier;
+            // 버프: 해당 표정에만 적용
+            int expressionIndex = item.itemType.GetExpressionIndex();
+            if (expressionIndex < 0) return false;
+
+            BonusAttackArray.Set(expressionIndex, BonusAttackArray[expressionIndex] + item.attackModifier);
+            BonusDamageTakenArray.Set(expressionIndex, BonusDamageTakenArray[expressionIndex] + item.damageTakenModifier);
+            BonusMoveSpeedArray.Set(expressionIndex, BonusMoveSpeedArray[expressionIndex] + item.moveSpeedModifier);
+            BonusAttackSpeedArray.Set(expressionIndex, BonusAttackSpeedArray[expressionIndex] + item.attackSpeedModifier);
             return true;
         }
         else if (item.category == ItemCategory.Potion)

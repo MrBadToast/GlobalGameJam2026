@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -8,6 +10,7 @@ public class WeaponController : MonoBehaviour
     [Header("References")]
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private Animator animator;
+    public List<GameObject> weaponEffects = new List<GameObject>();
 
     [Header("Override Controllers (가면 타입별)")]
     [SerializeField] private AnimatorOverrideController[] weaponOverrideControllers = new AnimatorOverrideController[4];
@@ -16,11 +19,20 @@ public class WeaponController : MonoBehaviour
     [SerializeField] private float orbitDistance = 0.5f;
     [SerializeField] private Vector2 offset = Vector2.right;
 
+
     // 현재 가면/무기 타입
     private int currentType = 0;
 
+    // 현재 무기 이펙트
+    public GameObject weaponEffect;
+
     // 외부에서 방향 설정용
     private Vector2 aimDirection = Vector2.right;
+
+    private void Start()
+    {
+        weaponEffect = weaponEffects[0];
+    }
 
     private void Update()
     {
@@ -35,6 +47,7 @@ public class WeaponController : MonoBehaviour
     {
         if (typeIndex < 0 || typeIndex >= 4) return;
         currentType = typeIndex;
+        weaponEffect = weaponEffects[typeIndex];
 
         if (animator != null && weaponOverrideControllers[typeIndex] != null)
         {

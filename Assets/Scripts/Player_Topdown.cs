@@ -431,7 +431,7 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
             );
 
             // 애니메이션 및 사운드 동기화를 위한 RPC (필요 시)
-            RPC_PlayMeleeEffects(attackPos);
+            RPC_PlayMeleeEffects(transform.position, baseDamage, attackPos);
         }
     }
 
@@ -471,26 +471,38 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void RPC_PlayShootEffects(Vector2 startPoint, float damage, Vector3 targetPos, Vector2 endPoint)
     {
-        // 무기 공격 애니메이션
+        // 무기 공격 애니메이션/이펙트
         if (weaponController != null)
+        {
             weaponController.PlayAttack();
+            Instantiate(weaponController.weaponEffect, targetPos, Quaternion.identity);
+        }
 
         // 사운드 재생 및 LineRenderer 표시
         StartCoroutine(ShowRayLine(startPoint, endPoint));
         if (damage > 0 && targetPos != Vector3.zero)
         {
-            GameObject dmgTextObj = Instantiate(damageTextPrefab, targetPos + Vector3.up * 0.5f, Quaternion.identity);
+            GameObject dmgTextObj = Instantiate(damageTextPrefab, targetPos + Vector3.up * 0.25f, Quaternion.identity);
             dmgTextObj.GetComponent<DamageText>().SetText(damage.ToString("F0"));
         }
     }
 
     // ========== [근거리 공격 이펙트] ==========
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_PlayMeleeEffects(Vector2 effectPos)
+    private void RPC_PlayMeleeEffects(Vector2 startPoint, float damage, Vector3 targetPos)
     {
         // 무기 공격 애니메이션
         if (weaponController != null)
+        {
             weaponController.PlayAttack();
+            Instantiate(weaponController.weaponEffect, targetPos, Quaternion.identity);
+        }
+
+        if (damage > 0 && targetPos != Vector3.zero)
+        {
+            GameObject dmgTextObj = Instantiate(damageTextPrefab, targetPos + Vector3.up * 0.25f, Quaternion.identity);
+            dmgTextObj.GetComponent<DamageText>().SetText(damage.ToString("F0"));
+        }
     }
 
     // ========== IEntity 메서드 ==========

@@ -14,10 +14,10 @@ public class GoldPickup : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        var player = Player_Topdown.Instance;
+        /*var player = Player_Topdown.Instance;
         if(player == null) return;
 
         player.AddMoney(amount);
-        Destroy(gameObject);
+        Destroy(gameObject);*/
     }
 }

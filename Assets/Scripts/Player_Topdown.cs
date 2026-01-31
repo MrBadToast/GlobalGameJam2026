@@ -1,10 +1,30 @@
-using System.Collections;
+using Fusion;
 using Sirenix.OdinInspector;
+using System.Collections;
+using TMPro;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D))]
-public class Player_Topdown : StaticSerializedMonoBehaviour<Player_Topdown>, IEntity
+public struct NetworkInputData : INetworkInput
 {
+    public Vector2 movementInput;
+    public Vector2 attackDirection; // 공격 방향 추가
+    public NetworkBool isAttackPressed; // 공격 버튼 상태 추가
+}
+
+[RequireComponent(typeof(Rigidbody2D))]
+public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
+{
+    // ============= NickName =================
+    public TextMeshProUGUI playerNickName;
+    public static Player_Topdown Local { get; private set; }
+
+    [Networked]
+    [OnChangedRender(nameof(OnNickNameChanged))]
+    public NetworkString<_16> nickName { get; set; }
+
+    // ============= Attack ================
+    [SerializeField, Required] private GameObject damageTextPrefab;
+
     // ========== IEntity 구현 ==========
     [Header("Stats")]
     [SerializeField] private float maxHealth = 100f;
@@ -50,7 +70,7 @@ public class Player_Topdown : StaticSerializedMonoBehaviour<Player_Topdown>, IEn
     [SerializeField] private AudioClip rangedAttackSound;
 
     [Header("ChildReferences")]
-    [SerializeField, Required()] private Animator animator;
+    [SerializeField/*, Required()*/] private Animator animator;
 
     [Header("Sound")]
     [SerializeField] private AudioClip hitSound;
@@ -69,11 +89,39 @@ public class Player_Topdown : StaticSerializedMonoBehaviour<Player_Topdown>, IEn
 
     private InputSystem_Actions input;
 
-
-    protected override void Awake()
+    public override void Spawned()
     {
-        base.Awake();
+        OnNickNameChanged();
+        if (Object.HasInputAuthority)
+        {
+            Local = this;
 
+            // 2. 로컬 플레이어의 닉네임을 설정
+            string savedNickName = PlayerPrefs.GetString("PlayerNickName", "Unknown");
+
+            // 호스트라면 직접 설정, 클라이언트라면 RPC 호출
+            if (Object.HasStateAuthority)
+            {
+                nickName = savedNickName;
+            }
+            else
+            {
+                RPC_SetNickName(savedNickName);
+            }
+
+            Debug.Log("Spawned local player!!");
+        }
+        else
+        {
+            Debug.Log("Spawned remote player!!!!");
+        }
+
+        transform.name = $"P_{Object.Id}";
+    }
+
+    public void Awake()
+    {
+        animator = GetComponentInChildren<Animator>();
         rb = GetComponent<Rigidbody2D>();
         input = new InputSystem_Actions();
         currentHealth = maxHealth;
@@ -92,6 +140,8 @@ public class Player_Topdown : StaticSerializedMonoBehaviour<Player_Topdown>, IEn
 
     private void Update()
     {
+        if (!Object.HasInputAuthority) return;
+
         // 마우스 월드 좌표 저장 (Gizmo용)
         if (mainCamera != null)
         {
@@ -102,7 +152,7 @@ public class Player_Topdown : StaticSerializedMonoBehaviour<Player_Topdown>, IEn
 
         HandleMovementInput();
         HandleExpressionInput();
-        HandleAttackInput();
+        GetNetworkInput();
     }
 
     private void HandleMovementInput()
@@ -119,6 +169,21 @@ public class Player_Topdown : StaticSerializedMonoBehaviour<Player_Topdown>, IEn
         animator.SetFloat("MoveY", inputVector.y);
     }
 
+    public NetworkInputData GetNetworkInput()
+    {
+        NetworkInputData data = new NetworkInputData();
+        data.movementInput = inputVector;
+
+        // 마우스 방향 계산
+        Vector2 mouseWorldPos = mainCamera.ScreenToWorldPoint(UnityEngine.Input.mousePosition);
+        data.attackDirection = (mouseWorldPos - (Vector2)transform.position).normalized;
+
+        // 이번 틱에 공격 버튼을 눌렀는지 확인
+        data.isAttackPressed = input.Player.Attack.WasPressedThisFrame();
+
+        return data;
+    }
+
     private void HandleExpressionInput()
     {
         if (UnityEngine.Input.GetKeyDown(KeyCode.Alpha1))
@@ -129,98 +194,6 @@ public class Player_Topdown : StaticSerializedMonoBehaviour<Player_Topdown>, IEn
             SetExpression(2);  // Sad
         else if (UnityEngine.Input.GetKeyDown(KeyCode.Alpha4))
             SetExpression(3);  // Angry
-    }
-
-    private void HandleAttackInput()
-    {
-        if (input.Player.Attack.WasPressedThisFrame())
-        {
-            TryAttack();
-        }
-    }
-
-    private void TryAttack()
-    {
-        // 쿨다운 체크
-        float cooldown = attackCooldown / ExpressionData.GetAttackSpeedMultiplier(expression, bonusStats);
-        if (Time.time < lastAttackTime + cooldown) return;
-
-        lastAttackTime = Time.time;
-
-        // 마우스 방향 계산
-        Vector2 mouseWorldPos = mainCamera.ScreenToWorldPoint(UnityEngine.Input.mousePosition);
-        Vector2 attackDirection = (mouseWorldPos - (Vector2)transform.position).normalized;
-
-        // 공격 타입에 따라 분기
-        AttackRangeType attackType = ExpressionData.GetAttackRange(expression);
-
-        if (attackType == AttackRangeType.Melee)
-        {
-            PerformMeleeAttack(attackDirection);
-        }
-        else
-        {
-            PerformRangedAttack(attackDirection);
-        }
-
-        // 공격 애니메이션
-        animator?.SetTrigger("Attack");
-    }
-
-    private void PerformMeleeAttack(Vector2 direction)
-    {
-        Vector2 attackPos = (Vector2)transform.position + direction * meleeAttackOffset;
-
-        CombatUtils.Attack(
-            this,
-            attackPos,
-            meleeAttackRadius,
-            CombatUtils.MonsterMask,
-            baseDamage,
-            meleeAttackSound,
-            soundVolume
-        );
-    }
-
-    private void PerformRangedAttack(Vector2 direction)
-    {
-        // 사운드 재생
-        if (rangedAttackSound != null)
-        {
-            AudioSource.PlayClipAtPoint(rangedAttackSound, transform.position, soundVolume);
-        }
-
-        Vector2 origin = transform.position;
-        Vector2 endPoint = origin + direction * rangedAttackRange;
-
-        // 레이캐스트로 타겟 탐색
-        RaycastHit2D hit = Physics2D.Raycast(origin, direction, rangedAttackRange, CombatUtils.MonsterMask);
-
-        if (hit.collider != null)
-        {
-            endPoint = hit.point;
-
-            if (hit.collider.TryGetComponent<IEntity>(out var target) && !target.IsDead)
-            {
-                // 데미지 계산
-                float finalDamage = ExpressionData.CalculateDamage(
-                    baseDamage,
-                    expression,
-                    target.Expression,
-                    bonusStats,
-                    target.BonusStats
-                );
-
-                Vector2 hitDirection = ((Vector2)target.GameObject.transform.position - origin).normalized;
-                target.TakeDamage(finalDamage, hitDirection);
-            }
-        }
-
-        // 궤적 표시
-        if (lineRenderer != null)
-        {
-            StartCoroutine(ShowRayLine(origin, endPoint));
-        }
     }
 
     private IEnumerator ShowRayLine(Vector2 start, Vector2 end)
@@ -259,7 +232,7 @@ public class Player_Topdown : StaticSerializedMonoBehaviour<Player_Topdown>, IEn
     }
     */
 
-    private void FixedUpdate()
+    public override void FixedUpdateNetwork()
     {
         if (IsDead)
         {
@@ -267,15 +240,105 @@ public class Player_Topdown : StaticSerializedMonoBehaviour<Player_Topdown>, IEn
             return;
         }
 
-        rb.linearVelocity = inputVector * moveSpeed;
-        float rotationY = 0f;
+        // 입력을 가져옴 (서버와 클라이언트 모두에서 실행되지만, 
+        // StateAuthority인 서버의 계산이 최종 확정됨)
+        if (GetInput(out NetworkInputData inputData))
+        {
+            // 공격 버튼이 눌렸을 때만 실행
+            if (inputData.isAttackPressed)
+            {
+                // 현재 표정에 따른 공격 타입 확인
+                AttackRangeType attackType = ExpressionData.GetAttackRange(expression);
 
-        if (inputVector.x > 0)
-            rotationY = 0f;
-        else if (inputVector.x < 0)
-            rotationY = 180f;
+                if (attackType == AttackRangeType.Melee)
+                {
+                    ProcessMeleeAttack(inputData.attackDirection);
+                }
+                else if (attackType == AttackRangeType.Ranged)
+                {
+                    ProcessRangedAttack(inputData.attackDirection);
+                }
+            }
+        }
+    }
 
-        transform.rotation = Quaternion.Euler(0f, rotationY, 0f);
+    // ========== [근접 공격 로직] ==========
+    private void ProcessMeleeAttack(Vector2 direction)
+    {
+        float cooldown = attackCooldown / ExpressionData.GetAttackSpeedMultiplier(expression, bonusStats);
+        if (Time.time < lastAttackTime + cooldown) return;
+        lastAttackTime = Time.time;
+
+        // 서버에서만 실제 판정 수행
+        if (Object.HasStateAuthority)
+        {
+            Vector2 attackPos = (Vector2)transform.position + direction * meleeAttackOffset;
+
+            // CombatUtils.Attack 내부에 target.TakeDamage 로직이 있다고 가정합니다.
+            CombatUtils.Attack(
+                this,
+                attackPos,
+                meleeAttackRadius,
+                CombatUtils.MonsterMask,
+                baseDamage,
+                meleeAttackSound,
+                soundVolume
+            );
+
+            // 애니메이션 및 사운드 동기화를 위한 RPC (필요 시)
+            RPC_PlayMeleeEffects(attackPos);
+        }
+    }
+
+    // ========== [원거리 공격 로직] ==========
+    private void ProcessRangedAttack(Vector2 direction)
+    {
+        float cooldown = attackCooldown / ExpressionData.GetAttackSpeedMultiplier(expression, bonusStats);
+        if (Time.time < lastAttackTime + cooldown) return;
+        lastAttackTime = Time.time;
+
+        if (Object.HasStateAuthority)
+        {
+            Vector2 origin = (Vector2)transform.position + direction * 0.5f;
+            RaycastHit2D hit = Physics2D.Raycast(origin, direction, rangedAttackRange, CombatUtils.MonsterMask);
+
+            float damage = 0;
+            Vector2 hitPoint = origin + direction * rangedAttackRange;
+            Vector3 targetPos = Vector3.zero;
+
+            if (hit.collider != null)
+            {
+                hitPoint = hit.point;
+                if (hit.collider.TryGetComponent<IEntity>(out var target))
+                {
+                    damage = baseDamage;
+                    target.TakeDamage(damage, direction);
+                    targetPos = hit.collider.transform.position;
+                }
+            }
+
+            // 모든 클라이언트에게 시각 효과 재생 요청
+            RPC_PlayShootEffects(damage, targetPos, hitPoint);
+        }
+    }
+
+    // ========== [원거리 공격 이펙트] ==========
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_PlayShootEffects(float damage, Vector3 targetPos, Vector2 endPoint)
+    {
+        // 여기서 사운드 재생 및 LineRenderer 표시만 수행 (데미지 로직 삭제)
+        StartCoroutine(ShowRayLine(transform.position, endPoint));
+        if (damage > 0 && targetPos != Vector3.zero)
+        {
+            GameObject dmgTextObj = Instantiate(damageTextPrefab, targetPos + Vector3.up * 0.5f, Quaternion.identity);
+            dmgTextObj.GetComponent<DamageText>().SetText(damage.ToString("F0"));
+        }
+    }
+
+    // ========== [근거리 공격 이펙트] ==========
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_PlayMeleeEffects(Vector2 effectPos)
+    {
     }
 
     // ========== IEntity 메서드 ==========
@@ -370,5 +433,24 @@ public class Player_Topdown : StaticSerializedMonoBehaviour<Player_Topdown>, IEn
             Vector2 endPoint = (Vector2)transform.position + direction * rangedAttackRange;
             Gizmos.DrawLine(transform.position, endPoint);
         }
+    }
+
+    private void OnNickNameChanged()
+    {
+        Debug.Log($"Nick anme changed for player to {nickName} for player {gameObject.name}");
+
+        playerNickName.text = nickName.ToString();
+    }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    public void RPC_SetNickName(string nickName, RpcInfo info = default)
+    {
+        Debug.Log($"[RPC] SetNickName {nickName}");
+        this.nickName = nickName;
+    }
+
+    public void PlayerLeft(PlayerRef player)
+    {
+        throw new System.NotImplementedException();
     }
 }

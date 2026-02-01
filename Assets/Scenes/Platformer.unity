@@ -45700,6 +45700,143 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!1 &127428391
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 127428394}
+  - component: {fileID: 127428393}
+  - component: {fileID: 127428392}
+  m_Layer: 5
+  m_Name: Timer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &127428392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 127428391}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: '00 : 00'
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: d7291416c12fa7548afd57e68706c820, type: 2}
+  m_sharedMaterial: {fileID: -4581590359870958738, guid: d7291416c12fa7548afd57e68706c820, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4288216832
+  m_fontColor: {r: 0, g: 1, b: 0.5968416, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 36
+  m_fontSizeBase: 36
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 1
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_characterHorizontalScale: 1
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &127428393
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 127428391}
+  m_CullTransparentMesh: 1
+--- !u!224 &127428394
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 127428391}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1577130346}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 200, y: 50}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &135490978
 GameObject:
   m_ObjectHideFlags: 0
@@ -46129,6 +46266,22 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7582085969790689055, guid: 77f0c4185379ab6448b90f622293f9c5, type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7582085969790689055, guid: 77f0c4185379ab6448b90f622293f9c5, type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7582085969790689055, guid: 77f0c4185379ab6448b90f622293f9c5, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7582085969790689055, guid: 77f0c4185379ab6448b90f622293f9c5, type: 3}
+      propertyPath: m_PreserveAspect
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7617379479272695038, guid: 77f0c4185379ab6448b90f622293f9c5, type: 3}
       propertyPath: m_SizeDelta.x
       value: 0
@@ -46207,7 +46360,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 8359809972457726560, guid: 77f0c4185379ab6448b90f622293f9c5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1577130346}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 4877375422021989220, guid: 77f0c4185379ab6448b90f622293f9c5, type: 3}
       insertIndex: -1
@@ -46257,22 +46413,45 @@ MonoBehaviour:
   npcObject: {fileID: 545582170}
   spawnOnStart: 1
   spawnSegments:
+  - rid: 3059453399298998401
   - rid: 1769118228391395428
   - rid: 1769118228391395430
+  - rid: 3059453399298998375
+  - rid: 3059453399298998376
   - rid: 1769118228391395431
-  - rid: 1769118228391395432
+  - rid: 3059453399298998378
+  - rid: 3059453399298998381
+  - rid: 3059453399298998380
   - rid: 1769118228391395433
+  - rid: 3059453399298998377
+  - rid: 3059453399298998379
+  - rid: 3059453399298998384
+  - rid: 3059453399298998383
+  - rid: 3059453399298998385
+  - rid: 3059453399298998386
+  - rid: 3059453399298998392
+  - rid: 3059453399298998390
+  - rid: 3059453399298998391
+  - rid: 3059453399298998388
+  - rid: 3059453399298998389
+  - rid: 3059453399298998393
+  - rid: 3059453399298998394
+  - rid: 3059453399298998395
+  - rid: 3059453399298998396
+  - rid: 3059453399298998397
+  - rid: 3059453399298998398
+  - rid: 3059453399298998399
   references:
     version: 2
     RefIds:
     - rid: 1769118228391395428
       type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
       data:
-        enemyPrefab: {fileID: 5803785839536338772, guid: d4486dc3ea3c5054bbe85a9729d676ef, type: 3}
+        enemyPrefab: {fileID: 5803785839536338772, guid: a235ba0851235de43a0f0a65c799d916, type: 3}
         spawnPoint: {fileID: 654869625}
         spawnRange: 1
         interaval: 2
-        repeatCount: 10
+        repeatCount: 2
     - rid: 1769118228391395430
       type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
       data:
@@ -46280,30 +46459,201 @@ MonoBehaviour:
         spawnPoint: {fileID: 1830394028}
         spawnRange: 1
         interaval: 2
-        repeatCount: 10
+        repeatCount: 2
     - rid: 1769118228391395431
+      type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
+      data:
+        enemyPrefab: {fileID: 5803785839536338772, guid: 56fa50db4a0d8924185ebcfa70ff885d, type: 3}
+        spawnPoint: {fileID: 1549945697}
+        spawnRange: 1
+        interaval: 2
+        repeatCount: 3
+    - rid: 1769118228391395433
+      type: {class: EnemySpawner/Wait, ns: , asm: Assembly-CSharp}
+      data:
+        waitTime: 30
+        incrementWave: 1
+        activateNpc: 1
+        deactivateAfterWait: 1
+    - rid: 3059453399298998375
+      type: {class: EnemySpawner/Wait, ns: , asm: Assembly-CSharp}
+      data:
+        waitTime: 12
+        incrementWave: 0
+        activateNpc: 0
+        deactivateAfterWait: 0
+    - rid: 3059453399298998376
+      type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
+      data:
+        enemyPrefab: {fileID: 5803785839536338772, guid: 10f5fb0485b976e408900d9c54704202, type: 3}
+        spawnPoint: {fileID: 1370635971}
+        spawnRange: 1
+        interaval: 2
+        repeatCount: 3
+    - rid: 3059453399298998377
+      type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
+      data:
+        enemyPrefab: {fileID: 5803785839536338772, guid: d4486dc3ea3c5054bbe85a9729d676ef, type: 3}
+        spawnPoint: {fileID: 1830394028}
+        spawnRange: 1
+        interaval: 1
+        repeatCount: 2
+    - rid: 3059453399298998378
+      type: {class: EnemySpawner/Wait, ns: , asm: Assembly-CSharp}
+      data:
+        waitTime: 5
+        incrementWave: 0
+        activateNpc: 0
+        deactivateAfterWait: 0
+    - rid: 3059453399298998379
+      type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
+      data:
+        enemyPrefab: {fileID: 5803785839536338772, guid: 10f5fb0485b976e408900d9c54704202, type: 3}
+        spawnPoint: {fileID: 1370635971}
+        spawnRange: 1
+        interaval: 1
+        repeatCount: 4
+    - rid: 3059453399298998380
+      type: {class: EnemySpawner/SpawnEnemy, ns: , asm: Assembly-CSharp}
+      data:
+        enemyPrefab: {fileID: 5803785839536338772, guid: 56fa50db4a0d8924185ebcfa70ff885d, type: 3}
+        spawnPoint: {fileID: 654869625}
+        spawnRange: 1
+        spawnQuantity: 1
+    - rid: 3059453399298998381
+      type: {class: EnemySpawner/SpawnEnemy, ns: , asm: Assembly-CSharp}
+      data:
+        enemyPrefab: {fileID: 5803785839536338772, guid: a235ba0851235de43a0f0a65c799d916, type: 3}
+        spawnPoint: {fileID: 654869625}
+        spawnRange: 1
+        spawnQuantity: 2
+    - rid: 3059453399298998383
+      type: {class: EnemySpawner/SpawnEnemy, ns: , asm: Assembly-CSharp}
+      data:
+        enemyPrefab: {fileID: 5803785839536338772, guid: a235ba0851235de43a0f0a65c799d916, type: 3}
+        spawnPoint: {fileID: 1549945697}
+        spawnRange: 1
+        spawnQuantity: 2
+    - rid: 3059453399298998384
+      type: {class: EnemySpawner/Wait, ns: , asm: Assembly-CSharp}
+      data:
+        waitTime: 10
+        incrementWave: 0
+        activateNpc: 0
+        deactivateAfterWait: 0
+    - rid: 3059453399298998385
+      type: {class: EnemySpawner/Wait, ns: , asm: Assembly-CSharp}
+      data:
+        waitTime: 45
+        incrementWave: 1
+        activateNpc: 1
+        deactivateAfterWait: 1
+    - rid: 3059453399298998386
+      type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
+      data:
+        enemyPrefab: {fileID: 5803785839536338772, guid: 56fa50db4a0d8924185ebcfa70ff885d, type: 3}
+        spawnPoint: {fileID: 1830394028}
+        spawnRange: 1
+        interaval: 1
+        repeatCount: 2
+    - rid: 3059453399298998388
+      type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
+      data:
+        enemyPrefab: {fileID: 5803785839536338772, guid: d4486dc3ea3c5054bbe85a9729d676ef, type: 3}
+        spawnPoint: {fileID: 1370635971}
+        spawnRange: 1
+        interaval: 7
+        repeatCount: 4
+    - rid: 3059453399298998389
+      type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
+      data:
+        enemyPrefab: {fileID: 5803785839536338772, guid: a235ba0851235de43a0f0a65c799d916, type: 3}
+        spawnPoint: {fileID: 1549945697}
+        spawnRange: 1
+        interaval: 3
+        repeatCount: 2
+    - rid: 3059453399298998390
+      type: {class: EnemySpawner/SpawnEnemy, ns: , asm: Assembly-CSharp}
+      data:
+        enemyPrefab: {fileID: 5803785839536338772, guid: 10f5fb0485b976e408900d9c54704202, type: 3}
+        spawnPoint: {fileID: 874118154898419795, guid: 10f5fb0485b976e408900d9c54704202, type: 3}
+        spawnRange: 1
+        spawnQuantity: 4
+    - rid: 3059453399298998391
+      type: {class: EnemySpawner/Wait, ns: , asm: Assembly-CSharp}
+      data:
+        waitTime: 15
+        incrementWave: 0
+        activateNpc: 0
+        deactivateAfterWait: 0
+    - rid: 3059453399298998392
+      type: {class: EnemySpawner/Wait, ns: , asm: Assembly-CSharp}
+      data:
+        waitTime: 5
+        incrementWave: 0
+        activateNpc: 0
+        deactivateAfterWait: 0
+    - rid: 3059453399298998393
+      type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
+      data:
+        enemyPrefab: {fileID: 5803785839536338772, guid: 56fa50db4a0d8924185ebcfa70ff885d, type: 3}
+        spawnPoint: {fileID: 654869625}
+        spawnRange: 1
+        interaval: 10
+        repeatCount: 1
+    - rid: 3059453399298998394
+      type: {class: EnemySpawner/Wait, ns: , asm: Assembly-CSharp}
+      data:
+        waitTime: 45
+        incrementWave: 1
+        activateNpc: 1
+        deactivateAfterWait: 1
+    - rid: 3059453399298998395
+      type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
+      data:
+        enemyPrefab: {fileID: 5803785839536338772, guid: 10f5fb0485b976e408900d9c54704202, type: 3}
+        spawnPoint: {fileID: 654869625}
+        spawnRange: 1
+        interaval: 10
+        repeatCount: 9999
+    - rid: 3059453399298998396
+      type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
+      data:
+        enemyPrefab: {fileID: 5803785839536338772, guid: a235ba0851235de43a0f0a65c799d916, type: 3}
+        spawnPoint: {fileID: 1830394028}
+        spawnRange: 1
+        interaval: 7
+        repeatCount: 9999
+    - rid: 3059453399298998397
       type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
       data:
         enemyPrefab: {fileID: 5803785839536338772, guid: d4486dc3ea3c5054bbe85a9729d676ef, type: 3}
         spawnPoint: {fileID: 1549945697}
         spawnRange: 1
-        interaval: 2
-        repeatCount: 10
-    - rid: 1769118228391395432
+        interaval: 16
+        repeatCount: 9999
+    - rid: 3059453399298998398
       type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
       data:
         enemyPrefab: {fileID: 5803785839536338772, guid: 56fa50db4a0d8924185ebcfa70ff885d, type: 3}
-        spawnPoint: {fileID: 1370635971}
+        spawnPoint: {fileID: 0}
         spawnRange: 1
-        interaval: 2
-        repeatCount: 10
-    - rid: 1769118228391395433
+        interaval: 14
+        repeatCount: 9999
+    - rid: 3059453399298998399
       type: {class: EnemySpawner/Wait, ns: , asm: Assembly-CSharp}
       data:
-        waitTime: 180
-        incrementWave: 1
+        waitTime: 9999
+        incrementWave: 0
         activateNpc: 1
-        deactivateAfterWait: 1
+        deactivateAfterWait: 0
+    - rid: 3059453399298998401
+      type: {class: EnemySpawner/Wait, ns: , asm: Assembly-CSharp}
+      data:
+        waitTime: 5
+        incrementWave: 0
+        activateNpc: 0
+        deactivateAfterWait: 0
 --- !u!4 &522009132
 Transform:
   m_ObjectHideFlags: 0
@@ -47109,6 +47459,71 @@ Transform:
   m_Children: []
   m_Father: {fileID: 522009132}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1498225608
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1498225611}
+  - component: {fileID: 1498225610}
+  - component: {fileID: 1498225609}
+  m_Layer: 0
+  m_Name: GameTimer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1498225609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1498225608}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
+  SortKey: 582058052
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 1498225610}
+  ForceRemoteRenderTimeframe: 0
+--- !u!114 &1498225610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1498225608}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d9f4dcbeb86b494da6b501536b8b466, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameTimer
+  timerText: {fileID: 127428392}
+--- !u!4 &1498225611
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1498225608}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 385.78558, y: 221.06927, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1530504182
 GameObject:
   m_ObjectHideFlags: 0
@@ -47277,6 +47692,42 @@ Transform:
   m_Children: []
   m_Father: {fileID: 522009132}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1577130345
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1577130346}
+  m_Layer: 5
+  m_Name: TimerRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1577130346
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1577130345}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 127428394}
+  m_Father: {fileID: 1987085730}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: -20}
+  m_SizeDelta: {x: 300, y: 100}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &1604267391
 GameObject:
   m_ObjectHideFlags: 0
@@ -131487,6 +131938,11 @@ Transform:
   - {fileID: 1686687480}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!224 &1987085730 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 8359809972457726560, guid: 77f0c4185379ab6448b90f622293f9c5, type: 3}
+  m_PrefabInstance: {fileID: 370180938}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1990295442
 GameObject:
   m_ObjectHideFlags: 0
@@ -131666,3 +132122,4 @@ SceneRoots:
   - {fileID: 641098599}
   - {fileID: 1969168875}
   - {fileID: 640508615}
+  - {fileID: 1498225611}

@@ -699,8 +699,8 @@ MonoBehaviour:
   _IsDead: 0
   _NetworkedHeading: {x: 0, y: 0}
   isProjectileAttack: 1
-  weaponType: 0
-  expressionType: 0
+  weaponType: 1
+  expressionType: 1
   maxHealth: 100
   moveSpeed: 3
   damage: 7
@@ -751,6 +751,8 @@ MonoBehaviour:
     RawGuidValue: 0132643e3d757d7458c0e17231e7436a
   dropMoneyMin: 5
   dropMoneyMax: 15
+  deathEffectPrefab: {fileID: 0}
+  deathEffectSpeed: 15
   trackingTarget: {fileID: 0}
   currentHealth: 0
   lastAttackTimer: 0

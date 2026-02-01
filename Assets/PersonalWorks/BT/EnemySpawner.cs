@@ -1,6 +1,7 @@
 using Fusion;
 using Sirenix.OdinInspector;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 public class EnemySpawner : NetworkBehaviour
@@ -16,6 +17,11 @@ public class EnemySpawner : NetworkBehaviour
 
     [SerializeField] private bool spawnOnStart = true;
     [SerializeReference] public SpawnSegment[] spawnSegments;
+
+    /// <summary>
+    /// 현재 접속한 클라이언트 수
+    /// </summary>
+    public int ClientCount => Runner != null ? Runner.ActivePlayers.Count() : 1;
 
     public override void Spawned()
     {
@@ -63,11 +69,14 @@ public class EnemySpawner : NetworkBehaviour
         [SerializeField,LabelText("스폰할 적 프리팹")] private GameObject enemyPrefab;
         [SerializeField,LabelText("스폰할 위치")] private Transform spawnPoint;
         [SerializeField,LabelText("스폰위치 오차")] private float spawnRange = 1.0f;
-        [SerializeField,LabelText("스폰할 수")] private int spawnQuantity = 1;
+        [SerializeField,LabelText("스폰할 수 (1인 기준)")] private int spawnQuantity = 1;
 
         public override IEnumerator Cor_Segment(NetworkRunner runner)
         {
-            for (int i = 0; i < spawnQuantity; i++)
+            // 클라이언트 수에 비례하여 스폰
+            int totalSpawn = spawnQuantity * EnemySpawner.Instance.ClientCount;
+
+            for (int i = 0; i < totalSpawn; i++)
             {
                 Vector3 pos = spawnPoint.position + Random.insideUnitSphere * spawnRange;
                 NetworkObject enemy = runner.Spawn(enemyPrefab, pos, Quaternion.identity);
@@ -86,16 +95,19 @@ public class EnemySpawner : NetworkBehaviour
         [SerializeField, LabelText("스폰위치 오차")] private float spawnRange = 1.0f;
 
         [SerializeField, LabelText("스폰 간격(초)")] private float interaval = 1f;
-        [SerializeField, LabelText("반복 횟수")] private int repeatCount = 5;
+        [SerializeField, LabelText("반복 횟수 (1인 기준)")] private int repeatCount = 5;
 
         public override IEnumerator Cor_Segment(NetworkRunner runner)
         {
-            for(int i = 0; i < repeatCount; i++)
+            // 클라이언트 수에 비례하여 반복
+            int totalRepeat = repeatCount * EnemySpawner.Instance.ClientCount;
+
+            for(int i = 0; i < totalRepeat; i++)
             {
                 NetworkObject enemy = runner.Spawn(enemyPrefab, spawnPoint.position + Random.insideUnitSphere * spawnRange, Quaternion.identity);
                 if(enemy)
                     enemy.GetComponent<EnemyBehavior_Generic>().Setproperty(EnemySpawner.Instance.currentWave);
-                
+
                 yield return new WaitForSeconds(interaval);
             }
         }

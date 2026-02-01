@@ -519,6 +519,8 @@ public class Player_Topdown : NetworkBehaviour, IEntity, IPlayerLeft
             GameObject dmgTextObj = Instantiate(damageTextPrefab, targetPos + Vector3.up * 0.25f, Quaternion.identity);
             dmgTextObj.GetComponent<DamageText>().SetText(damage.ToString("F0"));
         }
+        else
+            Debug.Log("sadsadsadsadasd");
     }
 
     // ========== [근거리 공격 이펙트] ==========

@@ -46451,7 +46451,7 @@ MonoBehaviour:
         spawnPoint: {fileID: 654869625}
         spawnRange: 1
         interaval: 2
-        repeatCount: 2
+        repeatCount: 3
     - rid: 1769118228391395430
       type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
       data:
@@ -46459,7 +46459,7 @@ MonoBehaviour:
         spawnPoint: {fileID: 1830394028}
         spawnRange: 1
         interaval: 2
-        repeatCount: 2
+        repeatCount: 3
     - rid: 1769118228391395431
       type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
       data:
@@ -46467,7 +46467,7 @@ MonoBehaviour:
         spawnPoint: {fileID: 1549945697}
         spawnRange: 1
         interaval: 2
-        repeatCount: 3
+        repeatCount: 4
     - rid: 1769118228391395433
       type: {class: EnemySpawner/Wait, ns: , asm: Assembly-CSharp}
       data:
@@ -46489,7 +46489,7 @@ MonoBehaviour:
         spawnPoint: {fileID: 1370635971}
         spawnRange: 1
         interaval: 2
-        repeatCount: 3
+        repeatCount: 4
     - rid: 3059453399298998377
       type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
       data:
@@ -46497,7 +46497,7 @@ MonoBehaviour:
         spawnPoint: {fileID: 1830394028}
         spawnRange: 1
         interaval: 1
-        repeatCount: 2
+        repeatCount: 3
     - rid: 3059453399298998378
       type: {class: EnemySpawner/Wait, ns: , asm: Assembly-CSharp}
       data:
@@ -46512,28 +46512,28 @@ MonoBehaviour:
         spawnPoint: {fileID: 1370635971}
         spawnRange: 1
         interaval: 1
-        repeatCount: 4
+        repeatCount: 5
     - rid: 3059453399298998380
       type: {class: EnemySpawner/SpawnEnemy, ns: , asm: Assembly-CSharp}
       data:
         enemyPrefab: {fileID: 5803785839536338772, guid: 56fa50db4a0d8924185ebcfa70ff885d, type: 3}
         spawnPoint: {fileID: 654869625}
         spawnRange: 1
-        spawnQuantity: 1
+        spawnQuantity: 2
     - rid: 3059453399298998381
       type: {class: EnemySpawner/SpawnEnemy, ns: , asm: Assembly-CSharp}
       data:
         enemyPrefab: {fileID: 5803785839536338772, guid: a235ba0851235de43a0f0a65c799d916, type: 3}
         spawnPoint: {fileID: 654869625}
         spawnRange: 1
-        spawnQuantity: 2
+        spawnQuantity: 3
     - rid: 3059453399298998383
       type: {class: EnemySpawner/SpawnEnemy, ns: , asm: Assembly-CSharp}
       data:
         enemyPrefab: {fileID: 5803785839536338772, guid: a235ba0851235de43a0f0a65c799d916, type: 3}
         spawnPoint: {fileID: 1549945697}
         spawnRange: 1
-        spawnQuantity: 2
+        spawnQuantity: 3
     - rid: 3059453399298998384
       type: {class: EnemySpawner/Wait, ns: , asm: Assembly-CSharp}
       data:
@@ -46544,7 +46544,7 @@ MonoBehaviour:
     - rid: 3059453399298998385
       type: {class: EnemySpawner/Wait, ns: , asm: Assembly-CSharp}
       data:
-        waitTime: 45
+        waitTime: 30
         incrementWave: 1
         activateNpc: 1
         deactivateAfterWait: 1
@@ -46555,14 +46555,14 @@ MonoBehaviour:
         spawnPoint: {fileID: 1830394028}
         spawnRange: 1
         interaval: 1
-        repeatCount: 2
+        repeatCount: 3
     - rid: 3059453399298998388
       type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
       data:
         enemyPrefab: {fileID: 5803785839536338772, guid: d4486dc3ea3c5054bbe85a9729d676ef, type: 3}
         spawnPoint: {fileID: 1370635971}
         spawnRange: 1
-        interaval: 7
+        interaval: 3
         repeatCount: 4
     - rid: 3059453399298998389
       type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
@@ -46571,14 +46571,14 @@ MonoBehaviour:
         spawnPoint: {fileID: 1549945697}
         spawnRange: 1
         interaval: 3
-        repeatCount: 2
+        repeatCount: 3
     - rid: 3059453399298998390
       type: {class: EnemySpawner/SpawnEnemy, ns: , asm: Assembly-CSharp}
       data:
         enemyPrefab: {fileID: 5803785839536338772, guid: 10f5fb0485b976e408900d9c54704202, type: 3}
         spawnPoint: {fileID: 874118154898419795, guid: 10f5fb0485b976e408900d9c54704202, type: 3}
         spawnRange: 1
-        spawnQuantity: 4
+        spawnQuantity: 5
     - rid: 3059453399298998391
       type: {class: EnemySpawner/Wait, ns: , asm: Assembly-CSharp}
       data:
@@ -46599,12 +46599,12 @@ MonoBehaviour:
         enemyPrefab: {fileID: 5803785839536338772, guid: 56fa50db4a0d8924185ebcfa70ff885d, type: 3}
         spawnPoint: {fileID: 654869625}
         spawnRange: 1
-        interaval: 10
-        repeatCount: 1
+        interaval: 4
+        repeatCount: 2
     - rid: 3059453399298998394
       type: {class: EnemySpawner/Wait, ns: , asm: Assembly-CSharp}
       data:
-        waitTime: 45
+        waitTime: 30
         incrementWave: 1
         activateNpc: 1
         deactivateAfterWait: 1

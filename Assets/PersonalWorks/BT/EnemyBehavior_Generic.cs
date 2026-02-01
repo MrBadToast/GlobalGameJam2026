@@ -339,7 +339,7 @@ public class EnemyBehavior_Generic : NetworkBehaviour, IEntity
         }
         public override void EnterState()
         {
-            enemy.spriteAnimator.Play("Attack");
+            //enemy.spriteAnimator.Play("Attack");
             enemy.lastAttackTimer = Time.time;
             enemy.nextAttackTime = Random.Range(enemy.attackCooldown.x, enemy.attackCooldown.y);
             attackCor = enemy.StartCoroutine(Cor_Attack());

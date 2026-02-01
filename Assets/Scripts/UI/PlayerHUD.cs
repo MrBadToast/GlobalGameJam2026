@@ -70,7 +70,7 @@ public class PlayerHUD : MonoBehaviour
         // 골드 업데이트
         if (currencyText != null)
         {
-            currencyText.text = player.Money.ToString();
+            currencyText.text = "$ " + player.Money.ToString();
         }
     }
 

@@ -218,6 +218,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77fb4b864bab0804dadb40edbde58f7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
+  npcObject: {fileID: 0}
   spawnOnStart: 1
   spawnSegments:
   - rid: 7426451867338014892
@@ -233,6 +234,9 @@ MonoBehaviour:
       type: {class: EnemySpawner/Wait, ns: , asm: Assembly-CSharp}
       data:
         waitTime: 3
+        incrementWave: 1
+        activateNpc: 1
+        deactivateAfterWait: 1
     - rid: 7426451867338014894
       type: {class: EnemySpawner/SpawnEnemy, ns: , asm: Assembly-CSharp}
       data:
@@ -244,6 +248,9 @@ MonoBehaviour:
       type: {class: EnemySpawner/Wait, ns: , asm: Assembly-CSharp}
       data:
         waitTime: 3
+        incrementWave: 1
+        activateNpc: 1
+        deactivateAfterWait: 1
     - rid: 7426451867338014896
       type: {class: EnemySpawner/SpawnRepeating, ns: , asm: Assembly-CSharp}
       data:
@@ -256,6 +263,9 @@ MonoBehaviour:
       type: {class: EnemySpawner/Wait, ns: , asm: Assembly-CSharp}
       data:
         waitTime: 3
+        incrementWave: 1
+        activateNpc: 1
+        deactivateAfterWait: 1
     - rid: 7426451867338014898
       type: {class: EnemySpawner/SpawnEnemy, ns: , asm: Assembly-CSharp}
       data:

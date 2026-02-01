@@ -139,8 +139,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18b9506cb8966f942af42461f5d2959d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyProjectile
-  travelSpeed: 7
-  projectileDamage: 5
+  travelSpeed: 5
+  projectileDamage: 3
   projectileLifetime: 5
 --- !u!58 &8890805142164406503
 CircleCollider2D:

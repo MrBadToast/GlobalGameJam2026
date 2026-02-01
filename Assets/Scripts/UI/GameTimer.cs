@@ -63,12 +63,14 @@ public class GameTimer : NetworkBehaviour
 
     public float GetElapsedTime()
     {
+        if (Object == null || !Object.IsValid) return 0f;
         return SyncedElapsedTime;
     }
 
     private void UpdateUI()
     {
         if (timerText == null) return;
+        if (Object == null || !Object.IsValid) return;
 
         float elapsed = SyncedElapsedTime;
         int minutes = (int)(elapsed / 60f);
@@ -96,5 +98,5 @@ public class GameTimer : NetworkBehaviour
         IsPaused = false;
     }
 
-    public bool IsTimerPaused => IsPaused;
+    public bool IsTimerPaused => Object != null && Object.IsValid && IsPaused;
 }

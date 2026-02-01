@@ -679,7 +679,7 @@ MonoBehaviour:
     _data:
       Data: 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   damageTextPrefab: {fileID: 5066689262041594168, guid: ef83c4ef34e0bb244aadff05828d25af, type: 3}
-  maxHealth: 100
+  maxHealth: 150
   _NetworkedHealth: 0
   _NetworkedExpression: 0
   expressionAnimators:
@@ -690,7 +690,6 @@ MonoBehaviour:
   weaponController: {fileID: 1688540867711698229}
   _NetworkedIsDead:
     _value: 0
-  _Money: 0
   _PotionCounts: 
   potionTypes:
   - {fileID: 11400000, guid: 525b0c912fc1a1b409e8ca535e140e42, type: 2}
